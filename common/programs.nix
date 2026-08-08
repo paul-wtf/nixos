@@ -59,6 +59,7 @@ in
     noriskclient-launcher
     obsidian
     lm_sensors
+    nvtopPackages.full
   ];
 
   # The NoRisk launcher downloads its own generic Zulu JDK to

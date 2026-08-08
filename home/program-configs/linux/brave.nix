@@ -1,6 +1,6 @@
 { pkgs, ... }:
 {
-  programs.brave = {
+  programs.brave-origin = {
     enable = true;
     extensions = [
       { id = "nngceckbapebfimnlniiiahkandclblb"; } # Bitwarden

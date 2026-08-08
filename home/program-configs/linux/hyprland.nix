@@ -194,7 +194,9 @@ in
         { name = "discord-position"; match = { class = "^discord$"; }; workspace = "2"; }
         { name = "tidal-position"; match = { class = "^tidal-hifi$"; }; workspace = "2"; }
         { name = "steam-bigpicture"; match = { class = "^steam$"; title = "^Steam Big Picture Mode$"; }; monitor = "HDMI-A-1"; fullscreen = true; }
-        { name = "bitwarden-extension"; match = { class = "^brave-nngceckbapebfimnlniiiahkandclblb-Default$"; }; float = true; }
+        # Class prefix follows CHROME_WRAPPER, so it is brave-origin now; the optional
+        # group keeps the rule working if we ever go back to the regular Brave build.
+        { name = "bitwarden-extension"; match = { class = "^brave(-origin)?-nngceckbapebfimnlniiiahkandclblb-Default$"; }; float = true; }
         { name = "thunar-file-operation-float"; match = { class = "^thunar$"; title = "^File Operation Progress$"; }; float = true; size = "600 300"; center = true; }
       ];
     };
