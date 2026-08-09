@@ -15,6 +15,17 @@ let
   rgba = hex: alpha: "rgba(${hex}${alpha})";
 in
 {
+  # XWayland starts with an empty RESOURCE_MANAGER property because nothing in a
+  # uwsm/Hyprland session runs xrdb (an X11 session's xinit would). Programs that
+  # read the X resource database without a NULL check then crash: FurMark's
+  # X11_GetMonitorDPI() passes XResourceManagerString()'s NULL straight into
+  # XrmGetStringDatabase() -> strlen(NULL) -> SIGSEGV, so pressing "Run Test"
+  # silently kills the benchmark process. Xft.dpi 96 is what toolkits already
+  # assume when the resource is unset, so this only fills the database.
+  xresources.properties = {
+    "Xft.dpi" = 96;
+  };
+
   wayland.windowManager.hyprland = {
     enable = true;
 
@@ -51,6 +62,13 @@ in
             -- MUST run first, otherwise the session unit hangs in the activating
             -- timeout.
             hl.exec_cmd("uwsm finalize")
+
+            -- Load ~/.Xresources into XWayland's RESOURCE_MANAGER (see the
+            -- xresources block above for why). Home Manager only merges it in its
+            -- activation script and via xsession.profileExtra, and neither runs on
+            -- a uwsm login -- so without this the property is empty after every
+            -- reboot. Connecting also starts XWayland if it is still lazy.
+            hl.exec_cmd("${pkgs.xrdb}/bin/xrdb -merge $HOME/.Xresources")
 
             -- NVIDIA 3-display cold-boot bug: if all monitors come up at the same time,
             -- the main monitor does not get 4K@240 (DSC/head allocation). Fix: briefly take
