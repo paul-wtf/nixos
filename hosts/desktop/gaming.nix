@@ -36,7 +36,10 @@ in
         PROTON_DLSS_INDICATOR = "1";
         PROTON_ENABLE_NVAPI = "1";
         PROTON_ENABLE_NGX_UPDATER = "1";
-        PROTON_NVIDIA_LIBS = "1";                # PhysX/CUDA in the prefix
+        # PROTON_NVIDIA_LIBS (PhysX/CUDA in the prefix) is disabled: it makes
+        # proton look for NVAPI under files/lib/wine/nvidia-libs/nvapi, which
+        # GE-Proton does not ship (its dxvk-nvapi DLLs live in files/lib/wine/nvapi).
+        # Result was a FileNotFoundError during prefix setup on every game start.
         PROTON_LOCAL_SHADER_CACHE = "1";
         PROTON_USE_NTSYNC = "1";                 # ntsync instead of fsync (/dev/ntsync)
         PROTON_VKD3D_HEAP = "1";                 # fixes NVIDIA Xid 109 crashes
