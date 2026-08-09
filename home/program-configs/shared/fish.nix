@@ -16,8 +16,9 @@
     '';
     shellAliases = {
       grep = "rg";
-      ls = "eza -la --group-directories-first --icons";
+      ls = "eza -la --group-directories-first --icons auto";
       cat = "bat";
+      claude = "tmux new claude";
     };
   };
 
