@@ -62,6 +62,7 @@ in
     nvtopPackages.full
     furmark
   ];
+  programs.kdeconnect.enable = true;
 
   # The NoRisk launcher downloads its own generic Zulu JDK to
   # ~/.local/share/noriskclientv3/meta/java/ and starts the client with it.
