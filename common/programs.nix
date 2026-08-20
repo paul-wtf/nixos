@@ -72,15 +72,22 @@ in
 
   programs.fish.enable                = true;
   programs.nano.enable                = false;
-  # gpu-screen-recorder + ShadowPlay-style overlay UI from the gsr-ui-nix
-  # flake. The recorder package comes from the flake too, so system and UI
-  # use the same recorder binary. ui.enable additionally sets up the
-  # security wrapper for gsr-global-hotkeys (cap_setuid+ep) and the
-  # gpu-screen-recorder-ui systemd user service.
-  programs.gpu-screen-recorder = {
-    package   = gsr-ui-nix.packages.${pkgs.stdenv.hostPlatform.system}.gpu-screen-recorder;
-    enable    = true;
-    ui.enable = true;
+  # gpu-screen-recorder + ShadowPlay-style overlay UI. The module itself is
+  # the upstream nixos one (it grew ui.* options, which collided with the
+  # gsr-ui-nix module -> that module is no longer imported in flake.nix).
+  # All three packages still come from the gsr-ui-nix flake because its
+  # recorder is newer than the one in nixpkgs; the flake packages take the
+  # same override arguments the upstream module passes in.
+  # ui.enable sets up the security wrapper for gsr-global-hotkeys
+  # (cap_setuid+ep); the overlay itself is started from hyprland.nix.
+  programs.gpu-screen-recorder = let
+    gsr = gsr-ui-nix.packages.${pkgs.stdenv.hostPlatform.system};
+  in {
+    package         = gsr.gpu-screen-recorder;
+    enable          = true;
+    ui.enable       = true;
+    ui.package      = gsr.gpu-screen-recorder-ui;
+    ui.notifPackage = gsr.gpu-screen-recorder-notification;
   };
   programs.git = {
     enable = true;

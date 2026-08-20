@@ -68,7 +68,6 @@
       modules = [
         ./hosts/${host}
         disko.nixosModules.disko
-        gsr-ui-nix.nixosModules.default
         home-manager.nixosModules.home-manager
         hmDefaults
         {
