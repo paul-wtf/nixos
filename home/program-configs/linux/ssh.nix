@@ -1,8 +1,20 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 let
   # Askpass helper: reads the key passphrase from the gnome-keyring.
+  #
+  # The passphrase is stored under gnome-keyring's own ssh-store attributes
+  # (label "Unlock password for: paul@paul-desktop"), not under a hand-rolled
+  # schema. That entry was created by gcr-ssh-agent, which common/sddm.nix
+  # disables because it has no working prompt under Hyprland -- the stored
+  # secret outlives the agent, so we just read it directly.
+  #
+  # Since nothing recreates it automatically any more, restore it like this if
+  # the keyring is ever reset (prompts for the passphrase):
+  #   secret-tool store --label='Unlock password for: paul@paul-desktop' \
+  #       unique "ssh-store:${config.home.homeDirectory}/.ssh/id_ed25519"
   keyringAskpass = pkgs.writeShellScript "ssh-askpass-keyring" ''
-    exec ${pkgs.libsecret}/bin/secret-tool lookup ssh id_ed25519
+    exec ${pkgs.libsecret}/bin/secret-tool lookup \
+      unique "ssh-store:${config.home.homeDirectory}/.ssh/id_ed25519"
   '';
 in
 {
@@ -13,8 +25,6 @@ in
   services.ssh-agent.enable = true;
 
   # Automatically loads the key into the agent at login (passphrase from gnome-keyring).
-  # Run ONCE after the first rebuild (prompts for the passphrase):
-  #   secret-tool store --label='ssh id_ed25519 passphrase' ssh id_ed25519
   systemd.user.services.ssh-add-key = {
     Unit = {
       Description = "Load SSH key into the agent with passphrase from gnome-keyring";
