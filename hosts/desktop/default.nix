@@ -17,7 +17,6 @@
   home-manager.users.paul.imports =
     [
       ./pipewire.nix
-      ./dac-keepalive.nix
       ./rodecaster-volume-bridge.nix
       ./mangohud.nix
       ./hyprland-monitors.nix
