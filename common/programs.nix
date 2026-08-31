@@ -91,6 +91,7 @@ in
   };
   programs.git = {
     enable = true;
+    lfs.enable = true;
     config.user = {
       name = "Paul Reitmayer";
       email = "paul.reitmayer@pm.me";
