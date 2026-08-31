@@ -22,5 +22,9 @@
       ./hyprland-monitors.nix
     ];
   networking.hostName = "paul-desktop";
+
+  # Minecraft (25565) for other NetBird peers only -- scoped to wt0 so the
+  # server stays invisible on the LAN and from the internet.
+  networking.firewall.interfaces.wt0.allowedTCPPorts = [ 25565 ];
   system.stateVersion = "26.05";
 }
