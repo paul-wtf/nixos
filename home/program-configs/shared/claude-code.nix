@@ -13,7 +13,7 @@
       # ── existing settings carried over ───────────────────────────────
       theme   = "dark-ansi";
       tui     = "fullscreen";
-      verbose = true;
+      verbose = false;
       model   = "claude-opus-5";
       # ── tmux ─────────────────────────────────────────────────────────
       # Agent teams run in tmux split-pane mode: every teammate gets a
