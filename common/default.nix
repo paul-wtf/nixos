@@ -14,6 +14,7 @@
     ./brave-policies.nix
     ./sudo.nix
     ./virtualisation.nix
+    ./netbird.nix
   ];
 
   networking.networkmanager.enable = true;
