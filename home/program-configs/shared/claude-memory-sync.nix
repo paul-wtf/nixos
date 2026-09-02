@@ -9,7 +9,7 @@ let
 
   # ── Projects ─────────────────────────────────────────────────────────────
   # Logical projects == store folder names.
-  projectNames = [ "fluxcd" "nixos" "bernice-portfolio" ];
+  projectNames = [ "fluxcd" "nixos" "bernice-portfolio" "spawnery" ];
 
   # Candidate parent directories. The repos live in different places depending
   # on the machine (macOS: ~/fleet, NixOS: ~/git). Claude Code derives the
