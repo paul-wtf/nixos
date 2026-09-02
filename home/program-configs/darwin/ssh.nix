@@ -13,11 +13,4 @@
     # emits it first in each block.)
     IgnoreUnknown = "UseKeychain";
   };
-
-  # github: this machine's own key, as before. The gpg-agent route that
-  # linux/gpg-agent.nix takes is not set up on macOS yet.
-  programs.ssh.settings."github.com" = {
-    IdentityFile = "~/.ssh/id_ed25519";
-    IdentitiesOnly = "yes";
-  };
 }

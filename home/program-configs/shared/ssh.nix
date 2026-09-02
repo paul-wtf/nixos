@@ -9,9 +9,9 @@
       # Load keys into the agent automatically on first use.
       "*".AddKeysToAgent = "yes";
 
-      # github: which key is per platform -- linux/gpg-agent.nix names the
-      # gpg-agent that serves the OpenPGP authentication subkey, darwin/ssh.nix
-      # keeps the machine's ~/.ssh/id_ed25519.
+      # github: the key comes from gpg-agent, which serves the OpenPGP
+      # authentication subkey -- named as IdentityAgent in linux/gpg-agent.nix
+      # and darwin/gpg-agent.nix, because the socket path differs per platform.
       "github.com".User = "git";
     };
   };
