@@ -7,6 +7,12 @@
   # its passphrase is what pinentry asks for once per cache period.
   programs.gpg.enable = true;
 
+  # GitHub authenticates with the authentication subkey. Named per host rather
+  # than through SSH_AUTH_SOCK alone, so that an SSH session into this machine
+  # -- whose fish init leaves a forwarded agent in place -- still reaches
+  # GitHub through gpg-agent. ssh expands the variable itself.
+  programs.ssh.settings."github.com".IdentityAgent = "\${XDG_RUNTIME_DIR}/gnupg/S.gpg-agent.ssh";
+
   services.gpg-agent = {
     enable = true;
     enableSshSupport = true;
