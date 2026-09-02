@@ -10,7 +10,7 @@
     ./program-configs/linux/theming.nix
     ./program-configs/linux/rofi.nix
     ./program-configs/linux/xdg-mime.nix
-    ./program-configs/linux/ssh.nix
+    ./program-configs/linux/gpg-agent.nix
   ];
 
   home.username = "paul";

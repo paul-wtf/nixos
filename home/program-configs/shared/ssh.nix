@@ -9,12 +9,10 @@
       # Load keys into the agent automatically on first use.
       "*".AddKeysToAgent = "yes";
 
-      # github: always use this key
-      "github.com" = {
-        User = "git";
-        IdentityFile = "~/.ssh/id_ed25519";
-        IdentitiesOnly = "yes";
-      };
+      # github: the key comes from gpg-agent, which serves the OpenPGP
+      # authentication subkey -- named as IdentityAgent in linux/gpg-agent.nix
+      # and darwin/gpg-agent.nix, because the socket path differs per platform.
+      "github.com".User = "git";
     };
   };
 }
