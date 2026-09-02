@@ -29,7 +29,7 @@ in
   # first time, afterwards only pulls; then lets sync.sh do the linking.
   home.activation.claudeMemorySync =
     lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      export PATH="${pkgs.git}/bin:${pkgs.openssh}/bin:${pkgs.coreutils}/bin:${pkgs.gnused}/bin:${pkgs.diffutils}/bin:${pkgs.gnugrep}/bin:${pkgs.hostname}/bin:$PATH"
+      export PATH="${pkgs.git}/bin:${pkgs.openssh}/bin:${pkgs.coreutils}/bin:${pkgs.gnused}/bin:${pkgs.diffutils}/bin:${pkgs.gnugrep}/bin:$PATH"
       if [ ! -d "${store}/.git" ]; then
         run git clone ${repoUrl} "${store}" || \
           echo "claude-memory: clone failed (SSH key present?) — nothing linked"
