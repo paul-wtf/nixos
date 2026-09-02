@@ -95,9 +95,17 @@ in
     config.user = {
       name = "Paul Reitmayer";
       email = "paul.reitmayer@pm.me";
-      signingKey = "~/.ssh/id_ed25519.pub";
+      # The OpenPGP signing subkey, pinned with "!" so gpg does not pick the
+      # other signing subkey on its own. Its public half is on GitHub with the
+      # rest of A86663FE8C6B0713; its secret half has to be imported into each
+      # machine's keyring by hand (gpg --import of a subkey export) -- Nix
+      # cannot carry a secret key.
+      signingKey = "1BDC71D099F85D10!";
     };
-    config.gpg.format = "ssh";
+    # OpenPGP through gpg-agent, which home/program-configs/linux/gpg-agent.nix
+    # runs; the SSH signing this replaced lived in ~/.ssh/id_ed25519.
+    config.gpg.format = "openpgp";
     config.commit.gpgsign = "true";
+    config.tag.gpgsign = "true";
   };
 }

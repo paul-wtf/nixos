@@ -23,8 +23,8 @@
   # however, it has no working passphrase prompt (no gnome-shell/gcr-prompter),
   # so every SSH signature hangs (git clone/push blocks at "Cloning into...").
   # The secret service (org.freedesktop.secrets) for tidal stays active - only
-  # the SSH part is disabled. The SSH agent is handled by home-manager
-  # (services.ssh-agent) in home/program-configs/linux/ssh.nix.
+  # the SSH part is disabled. The SSH agent is gpg-agent, run by home-manager
+  # (services.gpg-agent) in home/program-configs/linux/gpg-agent.nix.
   services.gnome.gcr-ssh-agent.enable = false;
 
   catppuccin = {
