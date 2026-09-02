@@ -7,71 +7,50 @@ let
   repoUrl = "git@github.com:paul-wtf/claude-memory.git";
   store   = "${config.home.homeDirectory}/claude-memory";
 
-  # ── Projects ─────────────────────────────────────────────────────────────
-  # Logical projects == store folder names.
-  projectNames = [ "fluxcd" "nixos" "bernice-portfolio" "spawnery" ];
-
-  # Candidate parent directories. The repos live in different places depending
-  # on the machine (macOS: ~/fleet, NixOS: ~/git). Claude Code derives the
-  # project key from the project working directory (every "/" becomes "-") —
-  # so it diverges per machine. Instead of hard-coding the key, the activation
-  # script looks for the FIRST existing path per project and computes the key
-  # from it. This way the module adapts itself to every machine, and symlinks
-  # are only created for projects that are actually checked out.
-  projectBases = [
-    "${config.home.homeDirectory}/fleet"
-    "${config.home.homeDirectory}/git"
-  ];
-
-  basesSh = lib.concatStringsSep " " (map lib.escapeShellArg projectBases);
-
-  # Per project: walk all base directories; if one exists, derive the key from
-  # the real path (/home/paul/git/nixos -> -home-paul-git-nixos) and replace
-  # the memory folder with a symlink to the store. A real pre-existing folder
-  # is backed up beforehand so that nothing gets lost.
-  linkLines = lib.concatStringsSep "\n" (map (name: ''
-    for base in ${basesSh}; do
-      proj="$base/${name}"
-      [ -d "$proj" ] || continue
-      key="$(echo "$proj" | ${pkgs.gnused}/bin/sed 's:/:-:g')"
-      mem="${config.home.homeDirectory}/.claude/projects/$key/memory"
-      run mkdir -p "${config.home.homeDirectory}/.claude/projects/$key"
-      if [ -e "$mem" ] && [ ! -L "$mem" ]; then
-        run mv "$mem" "$mem.pre-sync-backup-$(${pkgs.coreutils}/bin/date +%s)"
-      fi
-      run ln -sfn "${store}/${name}" "$mem"
-    done
-  '') projectNames);
+  # ── Which projects ───────────────────────────────────────────────────────
+  # All of them. There is no list: the store's own sync.sh derives a project's
+  # folder from its Claude Code key minus the base directory the repo sits
+  # under (~/git on NixOS, ~/fleet on macOS), so ~/git/spawnery and
+  # ~/fleet/spawnery both meet spawnery/. It folds every real memory directory
+  # on this machine into the store and replaces it with a symlink, then links
+  # every store folder into its key here, so a project checked out for the
+  # first time reads the shared memories from its very first session. The
+  # rule lives in the store rather than here so that a machine without
+  # home-manager runs exactly the same thing.
+  sync = "${pkgs.bash}/bin/bash ${store}/sync.sh";
 
 in
 {
   # git is needed at activation and hook runtime.
   home.packages = [ pkgs.git ];
 
-  # ── Activation: clone store + create symlinks ────────────────────────────
+  # ── Activation: clone store + link everything ────────────────────────────
   # Runs on every `home-manager switch`. Idempotent: clones the store the
-  # first time, afterwards only pulls; creates/refreshes the symlinks.
+  # first time, afterwards only pulls; then lets sync.sh do the linking.
   home.activation.claudeMemorySync =
     lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      export PATH="${pkgs.git}/bin:${pkgs.openssh}/bin:$PATH"
+      export PATH="${pkgs.git}/bin:${pkgs.openssh}/bin:${pkgs.coreutils}/bin:${pkgs.gnused}/bin:${pkgs.diffutils}/bin:${pkgs.gnugrep}/bin:${pkgs.hostname}/bin:$PATH"
       if [ ! -d "${store}/.git" ]; then
         run git clone ${repoUrl} "${store}" || \
-          echo "claude-memory: clone failed (SSH key present?) — setting symlinks anyway"
+          echo "claude-memory: clone failed (SSH key present?) — nothing linked"
       else
         run git -C "${store}" pull --rebase --autostash --quiet || true
       fi
-      ${linkLines}
+      if [ -x "${store}/sync.sh" ]; then
+        run ${sync}
+      fi
     '';
 
   # ── Sync hooks ───────────────────────────────────────────────────────────
   # Merged into ~/.claude/settings.json (home-manager combines
   # programs.claude-code.settings across modules).
   programs.claude-code.settings.hooks = {
-    # On session start, fetch the latest state from the other devices.
+    # On session start, fetch the latest state from the other devices and
+    # link any project that appeared since the last switch.
     SessionStart = [{
       hooks = [{
         type = "command";
-        command = "${pkgs.git}/bin/git -C ${store} pull --rebase --autostash --quiet || true";
+        command = "(${pkgs.git}/bin/git -C ${store} pull --rebase --autostash --quiet; ${sync}) >/dev/null 2>&1 || true";
       }];
     }];
 
