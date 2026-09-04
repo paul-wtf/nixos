@@ -98,11 +98,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1787952747,
-        "narHash": "sha256-ddypsClDbm5vSG5jVK7kgngPLxAMdTjYx0aAusQuOAg=",
+        "lastModified": 1788104316,
+        "narHash": "sha256-q+uomTME+yBUR+HeItmYrgoEbExtuN7FLxBVp3cA8+s=",
         "owner": "rPlakama",
         "repo": "gsr-ui-nix",
-        "rev": "90c691fb107dd710ff60ac1dbae550d5c1964bbb",
+        "rev": "526ab207919b18751ff1f88d7984cd30b0ba73c4",
         "type": "github"
       },
       "original": {
@@ -118,11 +118,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1787797243,
-        "narHash": "sha256-8+Q7NOB7RPajRjA4pbCDLzqH+MTjnG9x6LUPLfL2joA=",
+        "lastModified": 1788487777,
+        "narHash": "sha256-Ro/e1N4ZR8/XaFF+sF9SgfPK79HM5YNEppzFj8p+0Ak=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "99c9ec63390f1d8c14d95d9e8b17cc29cfbd4e11",
+        "rev": "693e8ce0fb240a73c116a03cfd7b19269c87af88",
         "type": "github"
       },
       "original": {
@@ -160,11 +160,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1787999920,
-        "narHash": "sha256-Kkk6FL42z+zAzM5R9kjjoC+CSrDrPY6m9BrLIe1bEkk=",
+        "lastModified": 1788512400,
+        "narHash": "sha256-pFiwb+c/lIvMvjSzJONZ+jPi36kbbljys7OFy+Kxt3U=",
         "owner": "FlameFlag",
         "repo": "nixcord",
-        "rev": "033bf2acdbfca8392dd2b2457dccc26f04982fb0",
+        "rev": "004e2c950c0b4a404fb3ea5ab01f5645265e4322",
         "type": "github"
       },
       "original": {
@@ -235,11 +235,11 @@
     },
     "nixpkgs_3": {
       "locked": {
-        "lastModified": 1787736819,
-        "narHash": "sha256-cV5xEJJK3BvhU8rEd4mC9UsmDi5qscv/kzGPhBRC5WA=",
+        "lastModified": 1788316716,
+        "narHash": "sha256-bc7rSpXIdn9QWGNqfWcPZWOhEVF8NoeAZkWq0XWnf/k=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "9fbb54b33e91ee4ca368e35a78e0613c720600b3",
+        "rev": "3ed67ec0a4d3c7ab4ae1f04f8ee8df07bfa506a2",
         "type": "github"
       },
       "original": {
@@ -332,11 +332,11 @@
         "nixpkgs": "nixpkgs_4"
       },
       "locked": {
-        "lastModified": 1787659077,
-        "narHash": "sha256-NnDq9sAMP+5dcoJq12u6Aq9X2ELo58UbkutMVtaY8E8=",
+        "lastModified": 1788301116,
+        "narHash": "sha256-VZv75eW2w7+v2Bin9A7GdFt5z/6b09WvRrXcIPUWoRg=",
         "owner": "Inrixia",
         "repo": "TidaLuna",
-        "rev": "7097b87781c921abca488557f0087fa0899b0495",
+        "rev": "d8cd6bc29b5edc30dd8ec28861b88d3519560126",
         "type": "github"
       },
       "original": {
