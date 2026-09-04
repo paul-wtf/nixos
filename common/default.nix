@@ -7,6 +7,7 @@
     ./programs.nix
     ./resolve-reencode.nix
     ./desktop.nix
+    ./libinput.nix
     ./nix.nix
     ./fonts.nix
     ./sensors.nix
