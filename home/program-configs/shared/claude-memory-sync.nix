@@ -7,23 +7,9 @@ let
   repoUrl = "git@github.com:paul-wtf/claude-memory.git";
   store   = "${config.home.homeDirectory}/claude-memory";
 
-  # ── Projects ─────────────────────────────────────────────────────────────
-  # Logical projects == store folder names.
-  projectNames = [ "fluxcd" "nixos" "bernice-portfolio" ];
-
-  # Candidate parent directories. The repos live in different places depending
-  # on the machine (macOS: ~/fleet, NixOS: ~/git). Claude Code derives the
-  # project key from the project working directory (every "/" becomes "-") —
-  # so it diverges per machine. Instead of hard-coding the key, the activation
-  # script looks for the FIRST existing path per project and computes the key
-  # from it. This way the module adapts itself to every machine, and symlinks
-  # are only created for projects that are actually checked out.
-  projectBases = [
-    "${config.home.homeDirectory}/fleet"
-    "${config.home.homeDirectory}/git"
-  ];
-
-  basesSh = lib.concatStringsSep " " (map lib.escapeShellArg projectBases);
+  # sync.sh in the store links every project memory on this machine, deriving
+  # the store folder from the project path -- so no list here goes stale.
+  syncScript = "${store}/sync.sh";
 
   # ── Global CLAUDE.md ─────────────────────────────────────────────────────
   # The instructions read in every session on every device, so they belong in
@@ -47,42 +33,26 @@ let
     run ln -sfn "${claudeMd}" "${claudeMdTarget}"
   '';
 
-  # Per project: walk all base directories; if one exists, derive the key from
-  # the real path (/home/paul/git/nixos -> -home-paul-git-nixos) and replace
-  # the memory folder with a symlink to the store. A real pre-existing folder
-  # is backed up beforehand so that nothing gets lost.
-  linkLines = lib.concatStringsSep "\n" (map (name: ''
-    for base in ${basesSh}; do
-      proj="$base/${name}"
-      [ -d "$proj" ] || continue
-      key="$(echo "$proj" | ${pkgs.gnused}/bin/sed 's:/:-:g')"
-      mem="${config.home.homeDirectory}/.claude/projects/$key/memory"
-      run mkdir -p "${config.home.homeDirectory}/.claude/projects/$key"
-      if [ -e "$mem" ] && [ ! -L "$mem" ]; then
-        run mv "$mem" "$mem.pre-sync-backup-$(${pkgs.coreutils}/bin/date +%s)"
-      fi
-      run ln -sfn "${store}/${name}" "$mem"
-    done
-  '') projectNames);
-
 in
 {
   # git is needed at activation and hook runtime.
   home.packages = [ pkgs.git ];
 
-  # ── Activation: clone store + create symlinks ────────────────────────────
-  # Runs on every `home-manager switch`. Idempotent: clones the store the
-  # first time, afterwards only pulls; creates/refreshes the symlinks.
+  # ── Activation ───────────────────────────────────────────────────────────
+  # Runs on every `home-manager switch`. Clones the store the first time,
+  # afterwards pulls, then lets sync.sh place the links. Idempotent.
   home.activation.claudeMemorySync =
     lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       export PATH="${pkgs.git}/bin:${pkgs.openssh}/bin:$PATH"
       if [ ! -d "${store}/.git" ]; then
         run git clone ${repoUrl} "${store}" || \
-          echo "claude-memory: clone failed (SSH key present?) — setting symlinks anyway"
+          echo "claude-memory: clone failed (SSH key present?)"
       else
         run git -C "${store}" pull --rebase --autostash --quiet || true
       fi
-      ${linkLines}
+      if [ -e "${syncScript}" ]; then
+        run ${pkgs.bash}/bin/bash "${syncScript}" || true
+      fi
       ${claudeMdLines}
     '';
 
@@ -94,7 +64,7 @@ in
     SessionStart = [{
       hooks = [{
         type = "command";
-        command = "${pkgs.git}/bin/git -C ${store} pull --rebase --autostash --quiet || true";
+        command = "(${pkgs.git}/bin/git -C ${store} pull --rebase --autostash --quiet; PATH=${pkgs.git}/bin:$PATH ${pkgs.bash}/bin/bash ${syncScript}) >/dev/null 2>&1 || true";
       }];
     }];
 
