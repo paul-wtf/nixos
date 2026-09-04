@@ -25,6 +25,28 @@ let
 
   basesSh = lib.concatStringsSep " " (map lib.escapeShellArg projectBases);
 
+  # ── Global CLAUDE.md ─────────────────────────────────────────────────────
+  # The instructions read in every session on every device, so they belong in
+  # the same store as the memories.
+  claudeMd       = "${store}/CLAUDE.md";
+  claudeMdTarget = "${config.home.homeDirectory}/.claude/CLAUDE.md";
+
+  # A real file on this machine is moved into the store rather than backed up
+  # when the store has none — otherwise the first switch on the machine that
+  # wrote the file would strand its content in a backup nobody reads again.
+  claudeMdLines = ''
+    run mkdir -p "${config.home.homeDirectory}/.claude"
+    if [ -e "${claudeMdTarget}" ] && [ ! -L "${claudeMdTarget}" ]; then
+      if [ -e "${claudeMd}" ]; then
+        run mv "${claudeMdTarget}" "${claudeMdTarget}.pre-sync-backup-$(${pkgs.coreutils}/bin/date +%s)"
+      else
+        run mv "${claudeMdTarget}" "${claudeMd}"
+      fi
+    fi
+    [ -e "${claudeMd}" ] || run touch "${claudeMd}"
+    run ln -sfn "${claudeMd}" "${claudeMdTarget}"
+  '';
+
   # Per project: walk all base directories; if one exists, derive the key from
   # the real path (/home/paul/git/nixos -> -home-paul-git-nixos) and replace
   # the memory folder with a symlink to the store. A real pre-existing folder
@@ -61,6 +83,7 @@ in
         run git -C "${store}" pull --rebase --autostash --quiet || true
       fi
       ${linkLines}
+      ${claudeMdLines}
     '';
 
   # ── Sync hooks ───────────────────────────────────────────────────────────
