@@ -11,6 +11,7 @@
     ./coolercontrol.nix
     ./lact.nix
     ./streamcontroller.nix
+    ./swiftpoint.nix
     ./vr.nix
   ];
 
