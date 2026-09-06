@@ -124,7 +124,10 @@ in
     partOf = [ "graphical-session.target" ];
     wantedBy = [ "graphical-session.target" ];
     serviceConfig = {
-      ExecStart = lib.getExe swiftpoint-x1-control-panel;
+      # "hide" starts it without a window; it only lives in the tray until the
+      # desktop entry is launched, which hands the running instance a window
+      # instead of starting a second one.
+      ExecStart = "${lib.getExe swiftpoint-x1-control-panel} hide";
       Restart = "on-failure";
       RestartSec = 2;
     };
