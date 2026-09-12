@@ -59,14 +59,18 @@ let
       install -Dm644 resources/overlay/dlss5-lab-overlay.addon64 \
         $app/dist/overlay/dlss5-lab-overlay.addon64
 
-      # The app stores absolute add-on paths in its own state and rejects
-      # symlinks (overlays.js lstats and refuses them), so a store path would
-      # break on the next update and a link would never be accepted. Copying
-      # into $HOME on every start keeps one stable path that stays current.
+      # Both files are registered as add-ons in the app: the one named like the
+      # bundled build replaces it, the forwarder rides along as a companion and
+      # is copied beside the game exe, which is the only place it is looked for.
+      # The app stores absolute paths in its own state and rejects symlinks
+      # (overlays.js lstats and refuses them), so a store path would break on
+      # the next update and a link would never be accepted. Copying into $HOME
+      # on every start keeps one stable path that stays current.
       makeWrapper ${lib.getExe pkgs.electron} $out/bin/dlss5-swapper \
         --add-flags $app \
         --run 'data="''${XDG_DATA_HOME:-$HOME/.local/share}/dlss5-swapper"' \
         --run 'install -Dm644 ${linuxAddon} "$data/addons/renodx-dlss.addon64"' \
+        --run 'install -Dm644 ${linuxForwarder} "$data/addons/nvngx.dll_nrfwd.dll"' \
         --run 'cd "$data"'
 
       install -Dm644 $app/assets/logo.png $out/share/pixmaps/dlss5-swapper.png
@@ -86,8 +90,8 @@ let
     };
   };
 
-  # The Swapper installs .addon64 files and nothing else, so the forwarder
-  # never arrives on its own. Run this after installing a game in the app.
+  # Repairs a game the app installed before both add-ons were registered with
+  # it, and drops the lab overlay, which the app reinstalls every time.
   dlss5-swapper-linux-addon = pkgs.writeShellApplication {
     name = "dlss5-swapper-linux-addon";
     runtimeInputs = with pkgs; [ jq ];
