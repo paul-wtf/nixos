@@ -2,7 +2,9 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     gsr-ui-nix = {
-      url = "github:rPlakama/gsr-ui-nix";
+      # Pinned: later revs pass `fetchSubmodules` to `builtins.fetchGit`, which
+      # only knows `submodules`, so the flake no longer evaluates.
+      url = "github:rPlakama/gsr-ui-nix/526ab207919b18751ff1f88d7984cd30b0ba73c4";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     tidaluna.url = "github:Inrixia/TidaLuna";
