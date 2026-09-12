@@ -48,6 +48,16 @@ in
     };
   };
 
+  # ── GTA V Enhanced Online under Proton ──
+  # Per github.com/WerIstLuka/GTAOnlineLinux: blackholing these BattlEye hosts
+  # is what lets the game into Online. The other two steps of that guide cannot
+  # live here -- x64/data/startup.meta sits in the Steam library, and the
+  # PROTON_BATTLEYE_RUNTIME path is a per-game launch option.
+  networking.hosts."0.0.0.0" = [
+    "test-s1.battleye.com"
+    "paradiseenhanced-s1.battleye.com"
+  ];
+
   # ── gamescope (HDR/adaptive-sync wrapper) ──
   programs.gamescope = {
     enable = true;
