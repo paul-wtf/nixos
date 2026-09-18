@@ -1,11 +1,8 @@
 { pkgs, lib, ... }:
 let
-  version = "3.1.2.0";
-
-  # Linux is not officially supported; upstream publishes these builds as an
-  # experimental side channel, so the URL carries a build hash and there is no
-  # release feed to follow. Check the changelog article for newer versions:
-  # https://support.swiftpoint.com/portal/en/kb/articles/swiftpoint-x1-control-panel-changelog
+  # Bumped by ./swiftpoint-update.sh, which scrapes the Linux KB article --
+  # the download URL carries a build hash and there is no release feed.
+  release = lib.importJSON ./swiftpoint.json;
   icon = pkgs.fetchurl {
     url = "https://support.swiftpoint.com/portal/api/publicImages/236657000020283222?portalId=edbsn0d3aa90196a4e3b6b39dfa53f41ea57346e362747d42eef1744d58b0281647e9";
     hash = "sha256-pxF+h6v1aTJf5iV9XsXnBDsVbQb+69msIr1U8YG5Nvk=";
@@ -14,14 +11,14 @@ let
 
   swiftpoint-x1-control-panel = pkgs.stdenv.mkDerivation {
     pname = "swiftpoint-x1-control-panel";
-    inherit version;
+    inherit (release) version;
 
     src = pkgs.fetchurl {
-      url = "https://swiftpointdrivers.blob.core.windows.net/pro/beta/linux/Swiftpoint%20X1%20Control%20Panel%20${version}-75bd9042.tar.xz";
-      hash = "sha256-AKAKmOL8jg6jKsWzTLAI/zmhd+keKPwpVRBw3tNxsEk=";
+      url = "https://swiftpointdrivers.blob.core.windows.net/pro/beta/linux/Swiftpoint%20X1%20Control%20Panel%20${release.version}-${release.build}.tar.xz";
+      inherit (release) hash;
     };
 
-    sourceRoot = "Swiftpoint X1 Control Panel ${version}";
+    sourceRoot = "Swiftpoint X1 Control Panel ${release.version}";
 
     nativeBuildInputs = with pkgs; [ autoPatchelfHook copyDesktopItems makeWrapper ];
 
@@ -41,12 +38,12 @@ let
       wayland
       zlib
       zstd
-      xorg.libX11
-      xorg.libxcb
-      xorg.xcbutilimage
-      xorg.xcbutilkeysyms
-      xorg.xcbutilrenderutil
-      xorg.xcbutilwm
+      libx11
+      libxcb
+      libxcb-image
+      libxcb-keysyms
+      libxcb-render-util
+      libxcb-wm
     ];
 
     # Leftovers from the Qt5 era of this app that upstream never removed. Qt6
