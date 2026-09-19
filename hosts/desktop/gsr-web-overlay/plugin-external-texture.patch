@@ -1,0 +1,81 @@
+--- a/include/plugins.h
++++ b/include/plugins.h
+@@ -28,7 +28,7 @@
+     gsr_color_conversion color_conversion;
+ } gsr_plugins;
+ 
+-bool gsr_plugins_init(gsr_plugins *self, gsr_plugin_init_params init_params, gsr_egl *egl);
++bool gsr_plugins_init(gsr_plugins *self, gsr_plugin_init_params init_params, gsr_egl *egl, bool load_external_image_shader);
+ /* Plugins are unloaded in reverse order */
+ void gsr_plugins_deinit(gsr_plugins *self);
+ 
+--- a/include/recorder/screenshot.h
++++ b/include/recorder/screenshot.h
+@@ -31,6 +31,6 @@
+ /* Returns a |gsr_error| value. Captures one frame and writes it to |settings->filename| */
+ int gsr_screenshot_take(const gsr_screenshot_params *params);
+ 
+-int gsr_load_plugins(gsr_plugins *plugins, const char **plugin_filepaths, int num_plugin_filepaths, const gsr_recorder_settings *settings, gsr_egl *egl, vec2i video_size);
++int gsr_load_plugins(gsr_plugins *plugins, const char **plugin_filepaths, int num_plugin_filepaths, const gsr_recorder_settings *settings, gsr_egl *egl, vec2i video_size, bool load_external_image_shader);
+ 
+ #endif /* GSR_RECORDER_SCREENSHOT_H */
+--- a/src/plugins.c
++++ b/src/plugins.c
+@@ -16,7 +16,7 @@
+     return GL_RGBA8;
+ }
+ 
+-bool gsr_plugins_init(gsr_plugins *self, gsr_plugin_init_params init_params, gsr_egl *egl) {
++bool gsr_plugins_init(gsr_plugins *self, gsr_plugin_init_params init_params, gsr_egl *egl, bool load_external_image_shader) {
+     memset(self, 0, sizeof(*self));
+     self->init_params = init_params;
+     self->egl = egl;
+@@ -35,7 +35,7 @@
+         .destination_textures_size[0] = (vec2i){ init_params.width, init_params.height },
+         .num_destination_textures = 1,
+         .color_range = GSR_COLOR_RANGE_FULL,
+-        .load_external_image_shader = false,
++        .load_external_image_shader = load_external_image_shader,
+         //.force_graphics_shader = false,
+     };
+     color_conversion_params.destination_textures[0] = self->texture;
+--- a/src/recorder/recorder.c
++++ b/src/recorder/recorder.c
+@@ -250,7 +250,7 @@
+ 
+     memset(&self->plugins, 0, sizeof(self->plugins));
+ 
+-    if(gsr_load_plugins(&self->plugins, self->plugin_filepaths, self->num_plugin_filepaths, &self->settings, self->egl, self->video_size) != GSR_ERROR_OK) {
++    if(gsr_load_plugins(&self->plugins, self->plugin_filepaths, self->num_plugin_filepaths, &self->settings, self->egl, self->video_size, gsr_video_sources_uses_external_image(self->video_sources)) != GSR_ERROR_OK) {
+         return GSR_ERROR_GENERIC;
+ 
+     }
+--- a/src/recorder/screenshot.c
++++ b/src/recorder/screenshot.c
+@@ -36,7 +36,7 @@
+     return 90;
+ }
+ 
+-int gsr_load_plugins(gsr_plugins *plugins, const char **plugin_filepaths, int num_plugin_filepaths, const gsr_recorder_settings *settings, gsr_egl *egl, vec2i video_size) {
++int gsr_load_plugins(gsr_plugins *plugins, const char **plugin_filepaths, int num_plugin_filepaths, const gsr_recorder_settings *settings, gsr_egl *egl, vec2i video_size, bool load_external_image_shader) {
+     if(num_plugin_filepaths == 0)
+         return GSR_ERROR_OK;
+ 
+@@ -50,7 +50,7 @@
+     plugin_init_params.color_depth = color_depth == GSR_COLOR_DEPTH_8_BITS ? GSR_PLUGIN_COLOR_DEPTH_8_BITS : GSR_PLUGIN_COLOR_DEPTH_10_BITS;
+     plugin_init_params.graphics_api = egl->context_type == GSR_GL_CONTEXT_TYPE_GLX ? GSR_PLUGIN_GRAPHICS_API_GLX : GSR_PLUGIN_GRAPHICS_API_EGL_ES;
+ 
+-    if(!gsr_plugins_init(plugins, plugin_init_params, egl))
++    if(!gsr_plugins_init(plugins, plugin_init_params, egl, load_external_image_shader))
+         return GSR_ERROR_GENERIC;
+ 
+     for(int i = 0; i < num_plugin_filepaths; ++i) {
+@@ -82,7 +82,7 @@
+     gsr_plugins plugins;
+     memset(&plugins, 0, sizeof(plugins));
+ 
+-    const int load_plugins_result = gsr_load_plugins(&plugins, params->plugin_filepaths, params->num_plugin_filepaths, settings, egl, video_size);
++    const int load_plugins_result = gsr_load_plugins(&plugins, params->plugin_filepaths, params->num_plugin_filepaths, settings, egl, video_size, gsr_video_sources_uses_external_image(video_sources));
+     if(load_plugins_result != GSR_ERROR_OK) {
+         gsr_video_sources_deinit(video_sources);
+         return load_plugins_result;

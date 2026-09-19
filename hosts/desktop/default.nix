@@ -14,6 +14,7 @@
     ./dlss5-swapper.nix
     ./swiftpoint.nix
     ./vr.nix
+    ./gsr-web-overlay
   ];
 
   home-manager.users.paul.imports =
