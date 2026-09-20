@@ -30,7 +30,7 @@ in
       # the full strip: a workspace rule beats general.gaps_*, so the runtime
       # `hyprctl eval` of a theme switch cannot put the gaps back.
       { workspace = "2"; monitor = "DP-3"; gaps_in = 0; gaps_out = 0; no_rounding = true; }
-      { workspace = "3"; monitor = "DP-2"; }
+      { workspace = "3"; monitor = "DP-2"; gaps_in = 10; gaps_out = 10; }
     ];
   };
 }
