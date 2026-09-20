@@ -14,6 +14,7 @@
     ./dlss5-swapper.nix
     ./swiftpoint.nix
     ./vr.nix
+    ./xeneon-edge.nix
     ./gsr-web-overlay
   ];
 
