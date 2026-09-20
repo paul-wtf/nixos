@@ -16,6 +16,7 @@
     ./sudo.nix
     ./virtualisation.nix
     ./netbird.nix
+    ./gc.nix
   ];
 
   networking.networkmanager.enable = true;
