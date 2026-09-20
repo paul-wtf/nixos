@@ -26,7 +26,10 @@ in
 
     workspace_rule = [
       { workspace = "1"; monitor = "HDMI-A-1"; }
-      { workspace = "2"; monitor = "DP-3"; }
+      # Tidal + Discord live here (window_rule in hyprland.nix) and should use
+      # the full strip: a workspace rule beats general.gaps_*, so the runtime
+      # `hyprctl eval` of a theme switch cannot put the gaps back.
+      { workspace = "2"; monitor = "DP-3"; gaps_in = 0; gaps_out = 0; no_rounding = true; }
       { workspace = "3"; monitor = "DP-2"; }
     ];
   };
