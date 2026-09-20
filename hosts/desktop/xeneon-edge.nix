@@ -4,7 +4,7 @@ let
   # pixels cannot be recovered -- only moved. 50 is the factory position and
   # hides them on the left (where the cursor lives); one step is ~1px, so 54
   # trades them for the right edge, which carries Discord's icon column.
-  position = 54;
+  position = 51;
   serial = "035925325656";
 in
 {
