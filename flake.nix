@@ -55,24 +55,6 @@
           old.buildCommand;
       });
     };
-    # Blackmagic re-uploaded the 21.1 archive under the same version number
-    # (the download path is now v21.1-1), so the hash nixpkgs pins no longer
-    # matches what the server hands out. Remove the overlay once nixpkgs
-    # carries the new hash.
-    davinciOverlay = final: prev:
-      let
-        file = "${prev.path}/pkgs/by-name/da/davinci-resolve/package.nix";
-        staleHash = "sha256-D5RjUukwKMpULrDfMJOPsPWW9FxhQ/IUMh76u5JLytA=";
-        freshHash = "sha256-P+zu8/OuFcDcIkwV3UMq0qg9U2JEGRkKDP+VLQesZjw=";
-        original = builtins.readFile file;
-      in
-      assert prev.lib.hasInfix staleHash original;
-      {
-        davinci-resolve-studio = prev.callPackage
-          (builtins.toFile "davinci-resolve-package.nix"
-            (builtins.replaceStrings [ staleHash ] [ freshHash ] original))
-          { studioVariant = true; };
-      };
     # Shared home-manager base settings for mkHost and mkDarwin.
     hmDefaults = {
       home-manager.useGlobalPkgs = true;
@@ -93,7 +75,7 @@
         {
           home-manager.extraSpecialArgs = { inherit dotfiles rodecaster-volume-bridge nixcord catppuccin; };
           home-manager.users.paul = import ./home/home-linux.nix;
-          nixpkgs.overlays = [ tidaluna.overlays.default noriskOverlay davinciOverlay ];
+          nixpkgs.overlays = [ tidaluna.overlays.default noriskOverlay ];
         }
       ];
     };
