@@ -17,12 +17,45 @@ let
     done
     [ "$found" -eq 1 ] || { echo "x3d-mode: no amd_x3d_vcache device found" >&2; exit 1; }
   '';
+
+  proton-cachyos = pkgs.stdenvNoCC.mkDerivation (finalAttrs: {
+    pname = "proton-cachyos";
+    version = "11.0-20260703-slr";
+
+    src = pkgs.fetchzip {
+      url = "https://github.com/CachyOS/proton-cachyos/releases/download/cachyos-${finalAttrs.version}/proton-cachyos-${finalAttrs.version}-x86_64.tar.xz";
+      hash = "sha256-jOcPeEkBBPPNqyjXBoHm1Nk8AexPiLhx5+385NjUPT0=";
+    };
+
+    dontUnpack = true;
+    dontConfigure = true;
+    dontBuild = true;
+
+    outputs = [ "out" "steamcompattool" ];
+
+    installPhase = ''
+      runHook preInstall
+      echo "Use programs.steam.extraCompatPackages instead." > $out
+      mkdir $steamcompattool
+      ln -s $src/* $steamcompattool
+      rm $steamcompattool/compatibilitytool.vdf
+      cp $src/compatibilitytool.vdf $steamcompattool
+      runHook postInstall
+    '';
+
+    # Steam keys per-game tool choices by the internal name, so a version-free
+    # name keeps them across updates.
+    preFixup = ''
+      substituteInPlace "$steamcompattool/compatibilitytool.vdf" \
+        --replace-fail "proton-cachyos-${finalAttrs.version}-x86_64" "proton-cachyos"
+    '';
+  });
 in
 {
   # ── Steam + Proton env (from Arch steam-env.conf — Steam only, not global) ──
   programs.steam = {
     enable = true;
-    extraCompatPackages = [ pkgs.proton-ge-bin ];   # GE-Proton (Arch used proton-cachyos)
+    extraCompatPackages = [ pkgs.proton-ge-bin proton-cachyos ];
     package = pkgs.steam.override {
       # gamescope/gamemoderun/mangohud also available inside the Steam FHS
       extraPkgs = ps: with ps; [ mangohud gamescope gamemode ];
