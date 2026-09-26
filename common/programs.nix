@@ -63,6 +63,7 @@ in
     furmark
     hyprpicker
     go
+    wl-clipboard
   ];
   programs.kdeconnect.enable = true;
 

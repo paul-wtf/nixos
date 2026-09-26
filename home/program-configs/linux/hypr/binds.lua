@@ -7,6 +7,7 @@ local terminal    = "kitty"
 local fileManager = "thunar"
 local menu        = "rofi -show drun"
 local screenshot  = "grimblast -f -n copy area"
+local colorPicker = "hyprpicker -a"
 
 hl.bind(mainMod .. " + RETURN",         hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + SHIFT + Q",      hl.dsp.window.close())
@@ -17,6 +18,7 @@ hl.bind(mainMod .. " + F",              hl.dsp.window.fullscreen())
 hl.bind(mainMod .. " + SHIFT + RETURN", hl.dsp.exec_cmd(menu))
 hl.bind(mainMod .. " + P",              hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + J",              hl.dsp.layout("togglesplit"))
+hl.bind(mainMod .. " + Y",              hl.dsp.exec_cmd(colorPicker))
 
 -- Toggle layout dwindle <-> scrolling. Native now: `hyprctl keyword` no longer
 -- works under the Lua config manager, and hl.get_config/hl.config do the same
