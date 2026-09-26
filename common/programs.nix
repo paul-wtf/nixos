@@ -62,6 +62,7 @@ in
     nvtopPackages.full
     furmark
     hyprpicker
+    go
   ];
   programs.kdeconnect.enable = true;
 
