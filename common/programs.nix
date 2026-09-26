@@ -61,6 +61,7 @@ in
     lm_sensors
     nvtopPackages.full
     furmark
+    hyprpicker
   ];
   programs.kdeconnect.enable = true;
 
