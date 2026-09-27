@@ -174,7 +174,15 @@ in
           # direction = "right";                             # direction in which new columns grow (left/right/down/up)
         };
 
-        misc = { force_default_wallpaper = -1; disable_hyprland_logo = false; };
+        # A display switched off by anything (hl.dsp.dpms can only toggle, so it
+        # is easy to end up with one dark panel) comes back on input instead of
+        # needing a working dispatcher.
+        misc = {
+          force_default_wallpaper = -1;
+          disable_hyprland_logo = false;
+          mouse_move_enables_dpms = true;
+          key_press_enables_dpms = true;
+        };
 
         render = {
           # use_shader_blur_blend = true;
