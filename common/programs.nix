@@ -13,6 +13,13 @@ let
       wrapProgram $out/bin/tidal-hifi --add-flags "--password-store=gnome-libsecret"
     '';
   };
+
+  # buildFHSEnv does not forward /etc/egl into the sandbox. Without it NVIDIA's
+  # EGL finds no Wayland platform and glvnd falls back to Mesa's llvmpipe,
+  # which is what Minecraft 26.3+ gets now that it opens its window via SDL/EGL.
+  labymod-launcher = pkgs.labymod-launcher.overrideAttrs (old: {
+    extraBwrapArgs = (old.extraBwrapArgs or [ ]) ++ [ "--symlink /.host-etc/egl /etc/egl" ];
+  });
 in
 {
   nixpkgs.config.allowUnfree = true;
