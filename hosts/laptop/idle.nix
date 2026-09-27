@@ -10,7 +10,7 @@
       general = {
         lock_cmd       = "pidof hyprlock || hyprlock";  # no duplicate instances
         before_sleep_cmd = "loginctl lock-session";      # lock before suspend/lid close
-        after_sleep_cmd  = "hyprctl dispatch dpms on";    # display back on after resume
+        after_sleep_cmd  = "hyprctl dispatch 'hl.dsp.dpms(\"on\")'";    # display back on after resume
       };
 
       listener = [
@@ -28,8 +28,8 @@
         # ~10.5 min: display off
         {
           timeout   = 630;
-          on-timeout = "hyprctl dispatch dpms off";
-          on-resume  = "hyprctl dispatch dpms on";
+          on-timeout = "hyprctl dispatch 'hl.dsp.dpms(\"off\")'";
+          on-resume  = "hyprctl dispatch 'hl.dsp.dpms(\"on\")'";
         }
         # 30 min: suspend (before_sleep_cmd already locks beforehand)
         {
