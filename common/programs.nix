@@ -73,7 +73,7 @@ in
     wl-clipboard
     kind
     podman
-    helm
+    kubernetes-helm
   ];
   programs.kdeconnect.enable = true;
 
