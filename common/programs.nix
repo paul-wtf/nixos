@@ -71,6 +71,9 @@ in
     hyprpicker
     go
     wl-clipboard
+    kind
+    podman
+    helm
   ];
   programs.kdeconnect.enable = true;
 
