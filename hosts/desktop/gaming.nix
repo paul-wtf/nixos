@@ -18,6 +18,15 @@ let
     [ "$found" -eq 1 ] || { echo "x3d-mode: no amd_x3d_vcache device found" >&2; exit 1; }
   '';
 
+  # amd-pstate-epp forces EPP to "performance" with the performance governor
+  # and keeps it when gamemode switches back to powersave.
+  restore-epp = pkgs.writeShellScriptBin "restore-epp" ''
+    set -eu
+    for f in /sys/devices/system/cpu/cpu*/cpufreq/energy_performance_preference; do
+      printf 'balance_performance' > "$f"
+    done
+  '';
+
   proton-cachyos = pkgs.stdenvNoCC.mkDerivation (finalAttrs: {
     pname = "proton-cachyos";
     version = "11.0-20260703-slr";
@@ -101,7 +110,11 @@ in
   programs.gamemode = {
     enable = true;
     settings = {
-      general.renice = 0;
+      general = {
+        renice = 0;
+        # Nothing on this Hyprland session owns org.freedesktop.ScreenSaver.
+        inhibit_screensaver = 0;
+      };
       cpu = {
         # 9950X3D: do not park cores, pin the game to cores.
         park_cores = "no";
@@ -110,18 +123,24 @@ in
       custom = {
         # Prefer the cache CCD while gaming, afterwards back to the frequency CCD.
         start = "/run/wrappers/bin/sudo ${x3d-mode}/bin/x3d-mode cache";
-        end = "/run/wrappers/bin/sudo ${x3d-mode}/bin/x3d-mode frequency";
+        end = [
+          "/run/wrappers/bin/sudo ${x3d-mode}/bin/x3d-mode frequency"
+          "/run/wrappers/bin/sudo ${restore-epp}/bin/restore-epp"
+        ];
       };
     };
   };
 
-  # gamemoded runs as the user -> NOPASSWD sudo ONLY for the x3d-mode write access.
+  # gamemode's polkit rule grants cpugovctl & co. only to this group.
+  users.users.paul.extraGroups = [ "gamemode" ];
+
+  # gamemoded runs as the user -> NOPASSWD sudo ONLY for these sysfs writes.
   security.sudo.extraRules = [{
     users = [ "paul" ];
-    commands = [{
-      command = "${x3d-mode}/bin/x3d-mode";
-      options = [ "NOPASSWD" ];
-    }];
+    commands = [
+      { command = "${x3d-mode}/bin/x3d-mode"; options = [ "NOPASSWD" ]; }
+      { command = "${restore-epp}/bin/restore-epp"; options = [ "NOPASSWD" ]; }
+    ];
   }];
 
   # ── zram (orders of magnitude faster than disk swap) + swap tuning ──
