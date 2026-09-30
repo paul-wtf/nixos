@@ -1,6 +1,8 @@
 { ... }:
 {
   virtualisation.libvirtd.enable = true;
+  # libvirtd pulls in machined.service directly, which doesn't want its socket; the socket then refuses to start.
+  systemd.services.systemd-machined.wants = [ "systemd-machined.socket" ];
   programs.virt-manager.enable = true;
 
   # Rootless containers, for working on the Spawnery images by hand.
