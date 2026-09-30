@@ -57,7 +57,7 @@ in
     nodejs
     pnpm
     s-tui
-    goverlay
+    # goverlay: its lazarus dependency fails the makeWrapper empty-segment check in nixpkgs f45c6f0
     labymod-launcher
     gnumake
     gcc
