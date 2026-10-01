@@ -1,23 +1,5 @@
 { pkgs, tidaluna, gsr-ui-nix, ... }:
 let
-  # Same build as tidaluna's linux-package.nix, with one patch to the injection:
-  # tidal.com now bundles React into framework-*.js, which Luna's module lookup
-  # doesn't search, so @luna/ui and every plugin fail to load.
-  lunaPkgs = import tidaluna.inputs.nixpkgs {
-    inherit (pkgs.stdenv.hostPlatform) system;
-    config.allowUnfree = true;
-  };
-  lunaInjection = (lunaPkgs.callPackage "${tidaluna}/nix/injection-linux.nix" { }).overrideAttrs (old: {
-    patches = (old.patches or [ ]) ++ [ ./tidaluna-framework-chunk.patch ];
-  });
-  tidaluna-patched = lunaPkgs.tidal-hifi.overrideAttrs {
-    postInstall = ''
-      mv $out/share/tidal-hifi/resources/app.asar $out/share/tidal-hifi/resources/original.asar
-      mkdir -p "$out/share/tidal-hifi/resources/app/"
-      cp -R ${lunaInjection}/* $out/share/tidal-hifi/resources/app/
-    '';
-  };
-
   # tidal-hifi (TidaLuna) wrapped to pin Electron's safeStorage to
   # gnome-libsecret. Otherwise 'auto' picks a backend inconsistently under
   # Hyprland, luna-trust-store.enc cannot be decrypted and TidaLuna asks for
@@ -25,7 +7,7 @@ let
   # gnome-keyring (see common/sddm.nix).
   tidal-hifi = pkgs.symlinkJoin {
     name = "tidal-hifi-gnome-libsecret";
-    paths = [ tidaluna-patched ];
+    paths = [ tidaluna.packages.${pkgs.stdenv.hostPlatform.system}.default ];
     nativeBuildInputs = [ pkgs.makeWrapper ];
     postBuild = ''
       wrapProgram $out/bin/tidal-hifi --add-flags "--password-store=gnome-libsecret"
