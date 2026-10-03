@@ -1,4 +1,4 @@
-{ ... }:
+{ humanizer, ... }:
 {
   # Claude Code declaratively via the home-manager module. It writes
   # ~/.claude/settings.json as a (read-only) Nix-store symlink — so change
@@ -53,5 +53,7 @@
         "code-review@claude-plugins-official"     = true;
       };
     };
+
+    skills.humanizer = "${humanizer}";
   };
 }

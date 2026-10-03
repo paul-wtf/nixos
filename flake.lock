@@ -136,6 +136,22 @@
         "type": "github"
       }
     },
+    "humanizer": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1790574878,
+        "narHash": "sha256-n8cbTzhlGf8VnWpPukq7XD2mucIrqyE1XMpAAc5oA8A=",
+        "owner": "blader",
+        "repo": "humanizer",
+        "rev": "225a6f39ac85f76ee48dbad772ea4abe4ed6c9d8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "blader",
+        "repo": "humanizer",
+        "type": "github"
+      }
+    },
     "nix-darwin": {
       "inputs": {
         "nixpkgs": [
@@ -318,6 +334,7 @@
         "dotfiles": "dotfiles",
         "gsr-ui-nix": "gsr-ui-nix",
         "home-manager": "home-manager",
+        "humanizer": "humanizer",
         "nix-darwin": "nix-darwin",
         "nixcord": "nixcord",
         "nixpkgs": "nixpkgs_3",

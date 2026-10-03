@@ -34,9 +34,13 @@
       url = "github:paul-wtf/streamcontroller-tidal";
       flake = false;
     };
+    humanizer = {
+      url = "github:blader/humanizer";
+      flake = false;
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, nix-darwin, disko, dotfiles, rodecaster-volume-bridge, streamcontroller-tidal, tidaluna, nixcord, catppuccin, gsr-ui-nix, ... }:
+  outputs = { self, nixpkgs, home-manager, nix-darwin, disko, dotfiles, rodecaster-volume-bridge, streamcontroller-tidal, tidaluna, nixcord, catppuccin, gsr-ui-nix, humanizer, ... }:
   let
     # Upstream bug (still present on nixpkgs master as of 2026-07-21): the
     # package calls wrapGAppsHook manually inside a symlinkJoin where $output
@@ -73,7 +77,7 @@
         home-manager.nixosModules.home-manager
         hmDefaults
         {
-          home-manager.extraSpecialArgs = { inherit dotfiles rodecaster-volume-bridge nixcord catppuccin; };
+          home-manager.extraSpecialArgs = { inherit dotfiles rodecaster-volume-bridge nixcord catppuccin humanizer; };
           home-manager.users.paul = import ./home/home-linux.nix;
           nixpkgs.overlays = [ tidaluna.overlays.default noriskOverlay ];
         }
@@ -86,7 +90,7 @@
         home-manager.darwinModules.home-manager
         hmDefaults
         {
-          home-manager.extraSpecialArgs = { inherit catppuccin; };
+          home-manager.extraSpecialArgs = { inherit catppuccin humanizer; };
           home-manager.users.paulweber = import ./home/home-darwin.nix;
         }
       ];
