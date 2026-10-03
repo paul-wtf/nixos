@@ -1,5 +1,23 @@
-{ humanizer, ... }:
+{ lib, pkgs, humanizer, ... }:
+let
+  # DO_NOT_TRACK switches off both telemetry and the daily GitHub update check;
+  # updates come through nixpkgs.
+  codegraph = pkgs.symlinkJoin {
+    name = "codegraph-${pkgs.codegraph.version}";
+    paths = [ pkgs.codegraph ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = "wrapProgram $out/bin/codegraph --set DO_NOT_TRACK 1";
+    meta.mainProgram = "codegraph";
+  };
+in
 {
+  home.packages = [ codegraph ];
+
+  # Git's default global excludes file; neither machine sets core.excludesFile.
+  xdg.configFile."git/ignore".text = ''
+    .codegraph/
+  '';
+
   # Claude Code declaratively via the home-manager module. It writes
   # ~/.claude/settings.json as a (read-only) Nix-store symlink — so change
   # settings HERE, not at runtime via /config (that would not persist).
@@ -36,7 +54,7 @@
       permissions = {
         defaultMode = "auto";
         # Allow tmux commands without confirmation (send-keys, split-window, …).
-        allow = [ "Bash(tmux:*)" ];
+        allow = [ "Bash(tmux:*)" "mcp__plugin_hm_codegraph__*" ];
       };
 
       # Enable plugins declaratively. Format: "<plugin>@<marketplace>" = true.
@@ -55,5 +73,13 @@
     };
 
     skills.humanizer = "${humanizer}";
+
+    # Only answers in repos that have a `.codegraph/` index (`codegraph init`).
+    mcpServers.codegraph = {
+      type = "stdio";
+      command = lib.getExe codegraph;
+      args = [ "serve" "--mcp" ];
+      alwaysLoad = true;
+    };
   };
 }
