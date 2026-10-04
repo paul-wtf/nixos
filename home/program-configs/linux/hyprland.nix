@@ -148,7 +148,7 @@ in
           active_opacity = 1.0;
           inactive_opacity = 1.0;
           shadow = { enabled = true; range = 4; render_power = 3; color = rgba crust "ee"; };
-          blur = { enabled = true; size = 6; passes = 2; vibrancy = 0.1696; new_optimizations = false; };
+          blur = { enabled = true; size = 6; passes = 2; vibrancy = 0.1696; new_optimizations = true; };
           motion_blur = { enabled = true; samples = 7; };
           # The look lives entirely here; Theme.qml only toggles enabled (zen ->
           # false, mocha/liquidglass -> true). Inactive windows transparent ->
