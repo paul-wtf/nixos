@@ -41,11 +41,11 @@
     "dotfiles": {
       "flake": false,
       "locked": {
-        "lastModified": 1787302974,
-        "narHash": "sha256-cPmqsonLqAjNZLBleSaWvHBV53fzUh8T2w3QvU6iaLw=",
+        "lastModified": 1791114703,
+        "narHash": "sha256-zXfO5Md7QSdXBM88CQz/qvZVntTsZ5GxheJMLjToBx8=",
         "owner": "paul-wtf",
         "repo": "dotfiles",
-        "rev": "159edbaed5c4d66346f75fb0ecd91e6aa0c78225",
+        "rev": "6c2e565cebe4e4bb6e73d9e2864613a05ffa95f7",
         "type": "github"
       },
       "original": {
