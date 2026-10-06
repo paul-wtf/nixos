@@ -12,6 +12,7 @@
     ./lact.nix
     ./streamcontroller.nix
     ./dlss5-swapper.nix
+    ./tiny4linux.nix
     ./swiftpoint.nix
     ./vr.nix
     ./xeneon-edge.nix
