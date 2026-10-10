@@ -17,6 +17,7 @@
     ./vr.nix
     ./xeneon-edge.nix
     ./gsr-web-overlay
+    ./wireguard.nix
   ];
 
   home-manager.users.paul.imports =
