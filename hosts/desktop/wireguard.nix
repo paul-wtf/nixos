@@ -3,7 +3,6 @@
   # No DNS entry: the tunnel only routes the internal ranges, so the system
   # resolver stays in charge.
   networking.wg-quick.interfaces.mgmt = {
-    autostart = false;
     address = [ "10.40.0.159/24" ];
     privateKeyFile = "/etc/wireguard/mgmt.key";
     peers = [
