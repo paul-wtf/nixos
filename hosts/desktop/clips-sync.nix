@@ -7,7 +7,7 @@ let
     text = ''
       cd "$HOME/Videos/Clips"
       find . -type f -mmin +1 -printf '%P\n' \
-        | rsync -a --numeric-ids --files-from=- \
+        | rsync -a --numeric-ids --ignore-existing --files-from=- \
             -e "ssh -i $HOME/.ssh/clips-sync -o IdentitiesOnly=yes -o IdentityAgent=none -o BatchMode=yes -o ConnectTimeout=10" \
             . root@10.1.90.1:
     '';
