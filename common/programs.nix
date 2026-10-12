@@ -38,6 +38,7 @@ in
     cowsay
     fluxcd
     kubectl
+    kubelogin-oidc
     teleport
     (prismlauncher.override {
       jdks = [
