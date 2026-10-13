@@ -10,8 +10,7 @@ in
 {
   # hyfetch (backend = "fastfetch") only provides the logo; selection and colors
   # of the info lines come from this config (~/.config/fastfetch/config.jsonc).
-  # enable installs the binary on both platforms (macOS: no extra
-  # home.packages in darwin/hyfetch.nix needed anymore).
+  # enable installs the binary on both platforms.
   programs.fastfetch = {
     enable = true;
     settings = {
