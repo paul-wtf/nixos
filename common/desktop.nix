@@ -16,6 +16,9 @@
     overrideStrategy = "asDropin";
     after = [ "xdg-desktop-portal-hyprland.service" ];
     wants = [ "xdg-desktop-portal-hyprland.service" ];
+    # The default unit PATH would shadow the session PATH, and GLib then drops
+    # every .desktop file whose Exec is not absolute from OpenURI's app list.
+    enableDefaultPath = false;
   };
 
   # Thunar file manager (no HM module available -> NixOS module).
