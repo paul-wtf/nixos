@@ -1,4 +1,4 @@
-{ pkgs, tidaluna, gsr-ui-nix, ... }:
+{ pkgs, tidaluna, gsr-ui-nix, llm-agents, ... }:
 let
   # tidal-hifi (TidaLuna) wrapped to pin Electron's safeStorage to
   # gnome-libsecret. Otherwise 'auto' picks a backend inconsistently under
@@ -20,6 +20,21 @@ let
   labymod-launcher = pkgs.labymod-launcher.overrideAttrs (old: {
     extraBwrapArgs = (old.extraBwrapArgs or [ ]) ++ [ "--symlink /.host-etc/egl /etc/egl" ];
   });
+
+  # Same /etc/egl gap as labymod-launcher, and the same safeStorage pin as
+  # tidal-hifi so the sign-in survives a restart.
+  claude-desktop = pkgs.symlinkJoin {
+    name = "claude-desktop-gnome-libsecret";
+    paths = [
+      (llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-desktop.overrideAttrs (old: {
+        extraBwrapArgs = (old.extraBwrapArgs or [ ]) ++ [ "--symlink /.host-etc/egl /etc/egl" ];
+      }))
+    ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      wrapProgram $out/bin/claude-desktop --add-flags "--password-store=gnome-libsecret"
+    '';
+  };
 in
 {
   nixpkgs.config.allowUnfree = true;
@@ -31,6 +46,7 @@ in
     vim
     htop
     tidal-hifi
+    claude-desktop
     pavucontrol
     grimblast
     usbutils

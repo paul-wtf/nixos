@@ -38,9 +38,12 @@
       url = "github:blader/humanizer";
       flake = false;
     };
+    # No nixpkgs follows: the binary cache only serves builds against the
+    # flake's own pinned nixpkgs.
+    llm-agents.url = "github:numtide/llm-agents.nix";
   };
 
-  outputs = { self, nixpkgs, home-manager, nix-darwin, disko, dotfiles, rodecaster-volume-bridge, streamcontroller-tidal, tidaluna, nixcord, catppuccin, gsr-ui-nix, humanizer, ... }:
+  outputs = { self, nixpkgs, home-manager, nix-darwin, disko, dotfiles, rodecaster-volume-bridge, streamcontroller-tidal, tidaluna, nixcord, catppuccin, gsr-ui-nix, humanizer, llm-agents, ... }:
   let
     # Upstream bug (still present on nixpkgs master as of 2026-07-21): the
     # package calls wrapGAppsHook manually inside a symlinkJoin where $output
@@ -70,7 +73,7 @@
     };
     mkHost = host: nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
-      specialArgs = { inherit tidaluna catppuccin streamcontroller-tidal gsr-ui-nix; };
+      specialArgs = { inherit tidaluna catppuccin streamcontroller-tidal gsr-ui-nix llm-agents; };
       modules = [
         ./hosts/${host}
         disko.nixosModules.disko
