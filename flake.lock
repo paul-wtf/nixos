@@ -114,11 +114,11 @@
         "systems": "systems"
       },
       "locked": {
-        "lastModified": 1731533236,
-        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
+        "lastModified": 1791914995,
+        "narHash": "sha256-Zf/xfQEAasnwnmEfHqW/4hjDE/s44yn2hD4RuVIZRjA=",
         "owner": "numtide",
         "repo": "flake-utils",
-        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
+        "rev": "b7a79d3fea1e214f6d668d521cecec0c01e26544",
         "type": "github"
       },
       "original": {
@@ -127,25 +127,79 @@
         "type": "github"
       }
     },
+    "gpu-screen-recorder": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1791799959,
+        "narHash": "sha256-Xs+H/jb6ngeXwDD5eNkZLTmXqdo6R3ZAPz8Tliba8pA=",
+        "ref": "refs/heads/master",
+        "rev": "d2cff49dd5146941fde801186924b2a0e06da363",
+        "revCount": 1521,
+        "type": "git",
+        "url": "https://repo.dec05eba.com/gpu-screen-recorder"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://repo.dec05eba.com/gpu-screen-recorder"
+      }
+    },
+    "gpu-screen-recorder-notification": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1789175973,
+        "narHash": "sha256-UmK9aDVsWgMZx9dCA0LFLmY0NLmhwh3O2VgztUzvPOs=",
+        "ref": "refs/heads/master",
+        "rev": "54bc6c8f139a5ff4025a4585d01c9e3f23894b72",
+        "revCount": 114,
+        "submodules": true,
+        "type": "git",
+        "url": "https://repo.dec05eba.com/gpu-screen-recorder-notification"
+      },
+      "original": {
+        "submodules": true,
+        "type": "git",
+        "url": "https://repo.dec05eba.com/gpu-screen-recorder-notification"
+      }
+    },
+    "gpu-screen-recorder-ui": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1791844296,
+        "narHash": "sha256-fceN3LlYZgQYLP2voplUJ24XthF+Oh2YCyqmSM+e7ZA=",
+        "ref": "refs/heads/master",
+        "rev": "eb445b2fcd4332a6a7fd9628598c5835db758069",
+        "revCount": 755,
+        "submodules": true,
+        "type": "git",
+        "url": "https://repo.dec05eba.com/gpu-screen-recorder-ui"
+      },
+      "original": {
+        "submodules": true,
+        "type": "git",
+        "url": "https://repo.dec05eba.com/gpu-screen-recorder-ui"
+      }
+    },
     "gsr-ui-nix": {
       "inputs": {
         "flake-utils": "flake-utils",
+        "gpu-screen-recorder": "gpu-screen-recorder",
+        "gpu-screen-recorder-notification": "gpu-screen-recorder-notification",
+        "gpu-screen-recorder-ui": "gpu-screen-recorder-ui",
         "nixpkgs": [
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1788104316,
-        "narHash": "sha256-q+uomTME+yBUR+HeItmYrgoEbExtuN7FLxBVp3cA8+s=",
+        "lastModified": 1792073672,
+        "narHash": "sha256-tQmgoqfkLQyvut6BOGLekmQXu2IuBcgRpzz/SoQrMXQ=",
         "owner": "rPlakama",
         "repo": "gsr-ui-nix",
-        "rev": "526ab207919b18751ff1f88d7984cd30b0ba73c4",
+        "rev": "757bf2877f6b94932e9aa80e3b7a4024a7e10d00",
         "type": "github"
       },
       "original": {
         "owner": "rPlakama",
         "repo": "gsr-ui-nix",
-        "rev": "526ab207919b18751ff1f88d7984cd30b0ba73c4",
         "type": "github"
       }
     },
