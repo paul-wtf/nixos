@@ -21,6 +21,17 @@ let
     extraBwrapArgs = (old.extraBwrapArgs or [ ]) ++ [ "--symlink /.host-etc/egl /etc/egl" ];
   });
 
+  # WebKitGTK's DMA-BUF renderer crashes on NVIDIA/Wayland with
+  # "Error 71 (Protocol error) dispatching to Wayland display".
+  noriskclient-launcher = pkgs.symlinkJoin {
+    name = "noriskclient-launcher-no-dmabuf";
+    paths = [ pkgs.noriskclient-launcher ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      wrapProgram $out/bin/noriskclient-launcher-v3 --set WEBKIT_DISABLE_DMABUF_RENDERER 1
+    '';
+  };
+
   # Same /etc/egl gap as labymod-launcher, and the same safeStorage pin as
   # tidal-hifi so the sign-in survives a restart.
   claude-desktop = pkgs.symlinkJoin {
@@ -74,7 +85,7 @@ in
     nodejs
     pnpm
     s-tui
-    # goverlay: its lazarus dependency fails the makeWrapper empty-segment check in nixpkgs f45c6f0
+    goverlay
     labymod-launcher
     gnumake
     gcc

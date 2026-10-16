@@ -45,23 +45,6 @@
 
   outputs = { self, nixpkgs, home-manager, nix-darwin, disko, dotfiles, rodecaster-volume-bridge, streamcontroller-tidal, tidaluna, nixcord, catppuccin, gsr-ui-nix, humanizer, llm-agents, ... }:
   let
-    # Upstream bug (still present on nixpkgs master as of 2026-07-21): the
-    # package calls wrapGAppsHook manually inside a symlinkJoin where $output
-    # is never set -> "wrapGAppsHookHasRunForOutput: bad array subscript".
-    # Remove the overlay once the build passes upstream again.
-    noriskOverlay = final: prev: {
-      noriskclient-launcher = prev.noriskclient-launcher.overrideAttrs (old: {
-        # WebKitGTK's DMA-BUF renderer crashes on NVIDIA/Wayland with
-        # "Error 71 (Protocol error) dispatching to Wayland display".
-        buildCommand = builtins.replaceStrings
-          [ "glibPostInstallHook" "gappsWrapperArgsHook" ]
-          [
-            "output=out\noutputBin=out\nglibPostInstallHook"
-            "gappsWrapperArgs+=(--set WEBKIT_DISABLE_DMABUF_RENDERER 1)\ngappsWrapperArgsHook"
-          ]
-          old.buildCommand;
-      });
-    };
     # Shared home-manager base settings for mkHost and mkDarwin.
     hmDefaults = {
       home-manager.useGlobalPkgs = true;
@@ -82,7 +65,6 @@
         {
           home-manager.extraSpecialArgs = { inherit dotfiles rodecaster-volume-bridge nixcord catppuccin humanizer; };
           home-manager.users.paul = import ./home/home-linux.nix;
-          nixpkgs.overlays = [ tidaluna.overlays.default noriskOverlay ];
         }
       ];
     };
