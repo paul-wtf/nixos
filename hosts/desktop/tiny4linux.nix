@@ -1,17 +1,17 @@
 { pkgs, lib, ... }:
 let
+  release = lib.importJSON ./tiny4linux.json;
+
   tiny4linux = pkgs.rustPlatform.buildRustPackage (finalAttrs: {
     pname = "tiny4linux";
-    version = "2.2.1";
+    inherit (release) version cargoHash;
 
     src = pkgs.fetchFromGitHub {
       owner = "OpenFoxes";
       repo = "Tiny4Linux";
       tag = "v${finalAttrs.version}";
-      hash = "sha256-eNvFa8h3XDnaSdM1iU6zbncUqBXzPrXgPzPziHJkZLA=";
+      inherit (release) hash;
     };
-
-    cargoHash = "sha256-ZURy8sn2ljW6qrLt5ILM8vnRKCUhYqWdy1s8pExDDnc=";
 
     buildFeatures = [ "gui" "cli" ];
     doCheck = false;

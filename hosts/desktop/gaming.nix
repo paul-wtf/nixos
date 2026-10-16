@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 let
   # AMD X3D CCD switcher (cache vs. frequency CCD). gamemode calls this via
   # sudo on game start/end; root is required for the sysfs write access.
@@ -27,13 +27,15 @@ let
     done
   '';
 
+  proton-cachyos-release = lib.importJSON ./proton-cachyos.json;
+
   proton-cachyos = pkgs.stdenvNoCC.mkDerivation (finalAttrs: {
     pname = "proton-cachyos";
-    version = "11.0-20260703-slr";
+    inherit (proton-cachyos-release) version;
 
     src = pkgs.fetchzip {
       url = "https://github.com/CachyOS/proton-cachyos/releases/download/cachyos-${finalAttrs.version}/proton-cachyos-${finalAttrs.version}-x86_64.tar.xz";
-      hash = "sha256-jOcPeEkBBPPNqyjXBoHm1Nk8AexPiLhx5+385NjUPT0=";
+      inherit (proton-cachyos-release) hash;
     };
 
     dontUnpack = true;
