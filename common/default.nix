@@ -6,6 +6,7 @@
     ./environment.nix
     ./programs.nix
     ./resolve-reencode.nix
+    ./resolve-mcp.nix
     ./frameaverage.nix
     ./desktop.nix
     ./libinput.nix
