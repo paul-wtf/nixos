@@ -1,4 +1,4 @@
-{ pkgs, tidaluna, gsr-ui-nix, llm-agents, ... }:
+{ pkgs, lib, tidaluna, gsr-ui-nix, llm-agents, ... }:
 let
   # tidal-hifi (TidaLuna) wrapped to pin Electron's safeStorage to
   # gnome-libsecret. Otherwise 'auto' picks a backend inconsistently under
@@ -119,6 +119,10 @@ in
     ui.package      = gsr.gpu-screen-recorder-ui;
     ui.notifPackage = gsr.gpu-screen-recorder-notification;
   };
+  # gsr-ui-nix wraps every binary in a GApps shell script, which the
+  # security-wrapper integrity check rejects; point at the ELF behind it.
+  security.wrappers."gsr-global-hotkeys".source = lib.mkForce
+    "${gsr-ui-nix.packages.${pkgs.stdenv.hostPlatform.system}.gpu-screen-recorder-ui}/bin/.gsr-global-hotkeys-wrapped";
   programs.git = {
     enable = true;
     lfs.enable = true;
