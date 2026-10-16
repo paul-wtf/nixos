@@ -32,7 +32,11 @@ in
       theme   = "dark-ansi";
       tui     = "fullscreen";
       verbose = false;
+      # In the user settings file a top-level effortLevel only reaches models up
+      # to claude-opus-5 / claude-fable-5-1; newer ones read modelSettings.
       effortLevel = "high";
+      modelSettings = lib.genAttrs [ "claude-opus-5-5" "claude-sonnet-5-5" ]
+        (_: { effortLevel = "high"; });
       # ── tmux ─────────────────────────────────────────────────────────
       # Agent teams run in tmux split-pane mode: every teammate gets a
       # pane of its own. "tmux" forces this (alternative: "auto" = only
