@@ -452,11 +452,11 @@
     "rodecaster-volume-bridge": {
       "flake": false,
       "locked": {
-        "lastModified": 1785880440,
-        "narHash": "sha256-gk61rLrhMU5Sv34u/KsJymTuROnK0fq9+De9ypdYAMY=",
+        "lastModified": 1792179917,
+        "narHash": "sha256-wXfyOTm4t8P7TFXROx93gHSwWKdssN+UzdDxH9MbDIA=",
         "owner": "paul-wtf",
         "repo": "rodecaster-volume-bridge",
-        "rev": "837c30d25ae9278a0be6fd0c9dcc4215f142ab69",
+        "rev": "30ee1a59d3e7b9649a7565a385769a4b7c982cec",
         "type": "github"
       },
       "original": {
