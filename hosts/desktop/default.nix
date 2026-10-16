@@ -13,7 +13,7 @@
     ./streamcontroller.nix
     ./dlss5-swapper.nix
     ./tiny4linux.nix
-    ./swiftpoint.nix
+    ./logitech.nix
     ./vr.nix
     ./xeneon-edge.nix
     ./gsr-web-overlay
