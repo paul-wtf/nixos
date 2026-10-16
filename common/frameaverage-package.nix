@@ -9,10 +9,11 @@ import ./ffmpeg-batch.nix { inherit pkgs; } {
   suffix = "_60fps.mp4";
   description = "Averages every 4 frames into one (240 -> 60 fps motion blur) and encodes HDR10 AV1 via NVENC.";
   inputArgs = "-hwaccel cuda";
+  # NVENC's automatic level can pick 5.1 Main, which caps 4K at 40 Mbit/s.
   outputArgs = ''
     -map 0 \
     -vf "fps=240,tmix=frames=4,framestep=4,setparams=range=pc:color_primaries=bt2020:color_trc=smpte2084:colorspace=bt2020nc" \
-    -c:v av1_nvenc -preset p7 -tune hq -rc vbr -cq 20 -b:v 0 \
+    -c:v av1_nvenc -preset p7 -tune hq -rc vbr -cq 24 -b:v 0 -level 6.3 -tier 1 \
     -pix_fmt p010le \
     -color_range pc -color_primaries bt2020 -color_trc smpte2084 -colorspace bt2020nc \
     -c:a copy \
