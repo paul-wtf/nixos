@@ -8,9 +8,7 @@ let
       frameaverage
       pkgs.coreutils
       pkgs.curl
-      pkgs.ffmpeg
       pkgs.findutils
-      pkgs.gawk
       pkgs.gnugrep
       pkgs.inotify-tools
       pkgs.libnotify
@@ -82,7 +80,7 @@ let
       }
 
       handle() {
-        local file=$1 rel dir folder="" stem out fps
+        local file=$1 rel dir folder="" stem out
         rel=''${file#"$clips"/}
         dir=$(dirname -- "$rel")
         if [ "$dir" != . ]; then
@@ -99,15 +97,6 @@ let
         settle "$file" || return 0
         stem=$(basename -- "$file" .mp4)
         out=''${file%.mp4}$suffix
-        # frameaverage always blends 4 frames, which turns anything below 240 fps
-        # into less than 60. gpu-screen-recorder writes VFR, so 240 averages ~235.
-        fps=$(ffprobe -v error -select_streams v:0 -show_entries stream=avg_frame_rate \
-                -of default=nk=1:nw=1 -- "$file" | awk -F/ '{ printf "%d", ($2 > 0) ? $1 / $2 : 0 }')
-        if [ "$fps" -lt 200 ]; then
-          echo "$rel runs at $fps fps, uploading it unaveraged"
-          upload "$file" "$stem" "$folder"
-          return
-        fi
         if ! frameaverage "$file" < /dev/null 2>&1 | tr '\r' '\n' | { grep -av '^frame=' || true; } || [ ! -s "$out" ]; then
           notify "frameaverage failed" "$rel is kept and not uploaded"
           echo "$file" >> "$state"
