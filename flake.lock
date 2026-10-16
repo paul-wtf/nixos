@@ -75,11 +75,11 @@
     "dotfiles": {
       "flake": false,
       "locked": {
-        "lastModified": 1791922488,
-        "narHash": "sha256-Y5bpWC8JKoL1uOM9NARcT1vNJipMZBdlphE2rUi/tbQ=",
+        "lastModified": 1792180582,
+        "narHash": "sha256-uH7X8WYQe4lOvkf30MnX8FkoGxTrkWMS08d5jTYnPQY=",
         "owner": "paul-wtf",
         "repo": "dotfiles",
-        "rev": "d394dbf5cdc2eb297c494900827c57626d877f7d",
+        "rev": "b6f01708ba469936f53d51d2345014bdc9bdfcd6",
         "type": "github"
       },
       "original": {
