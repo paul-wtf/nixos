@@ -32,6 +32,7 @@ in
       theme   = "dark-ansi";
       tui     = "fullscreen";
       verbose = false;
+      effortLevel = "high";
       # ── tmux ─────────────────────────────────────────────────────────
       # Agent teams run in tmux split-pane mode: every teammate gets a
       # pane of its own. "tmux" forces this (alternative: "auto" = only
