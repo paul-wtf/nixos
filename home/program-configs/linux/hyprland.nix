@@ -113,7 +113,6 @@ in
 
             hl.exec_cmd("uwsm app -- awww-daemon")
             hl.exec_cmd("sleep 1; awww img ${dotfiles}/wallpapers/firewatchcatpuccinmochagreen.png")
-            hl.exec_cmd("uwsm app -- streamcontroller -b")
             hl.exec_cmd("uwsm app -- steam -silent")
             hl.exec_cmd("uwsm app -- gsr-ui")
             hl.exec_cmd("uwsm app -- Telegram -startintray")
