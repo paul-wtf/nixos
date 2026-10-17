@@ -1,11 +1,8 @@
 { pkgs, ... }:
 let
-  frameaverage = import ../../common/frameaverage-package.nix { inherit pkgs; };
-
   upload = pkgs.writeShellApplication {
     name = "clips-upload";
     runtimeInputs = [
-      frameaverage
       pkgs.coreutils
       pkgs.curl
       pkgs.findutils
@@ -20,7 +17,6 @@ let
       state="$STATE_DIRECTORY/uploaded"
       resp="$STATE_DIRECTORY/response"
       url=https://clips.paul.wtf/api/upload/token
-      suffix=_60fps.mp4
 
       if [ ! -r "$token_file" ]; then
         echo "No Fireshare upload token at $token_file" >&2
@@ -80,30 +76,14 @@ let
       }
 
       handle() {
-        local file=$1 rel dir folder="" stem out
+        local file=$1 rel dir folder=""
         rel=''${file#"$clips"/}
         dir=$(dirname -- "$rel")
         if [ "$dir" != . ]; then
           folder=$dir
         fi
-        case $file in
-          *"$suffix")
-            stem=$(basename -- "$file" "$suffix")
-            upload "$file" "$stem" "$folder"
-            return
-            ;;
-        esac
-
         settle "$file" || return 0
-        stem=$(basename -- "$file" .mp4)
-        out=''${file%.mp4}$suffix
-        if ! frameaverage "$file" < /dev/null 2>&1 | tr '\r' '\n' | { grep -av '^frame=' || true; } || [ ! -s "$out" ]; then
-          notify "frameaverage failed" "$rel is kept and not uploaded"
-          echo "$file" >> "$state"
-          return 1
-        fi
-        rm -- "$file"
-        upload "$out" "$stem" "$folder"
+        upload "$file" "$(basename -- "$file" .mp4)" "$folder"
       }
 
       scan() {
@@ -117,7 +97,6 @@ let
       inotifywait -m -r -q -e close_write -e moved_to --format '%w%f' "$clips" \
         | while IFS= read -r file; do
             case $file in
-              *"$suffix") ;;
               *.mp4) scan ;;
             esac
           done
@@ -126,15 +105,13 @@ let
 in
 {
   home-manager.users.paul.systemd.user.services.clips-upload = {
-    Unit.Description = "Frame-average new gpu-screen-recorder clips and upload them to Fireshare";
+    Unit.Description = "Upload new gpu-screen-recorder clips to Fireshare";
     Service = {
       ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p %h/Videos/Clips";
       ExecStart = "${upload}/bin/clips-upload";
       StateDirectory = "clips-upload";
       Restart = "on-failure";
       RestartSec = "1min";
-      Nice = 10;
-      IOSchedulingClass = "idle";
     };
     Install.WantedBy = [ "default.target" ];
   };
