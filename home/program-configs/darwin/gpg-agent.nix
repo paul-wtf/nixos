@@ -37,8 +37,10 @@
     RunAtLoad = lib.mkForce true;
   };
 
-  programs.ssh.settings."github.com".IdentityAgent =
-    "${config.programs.gpg.homedir}/S.gpg-agent.ssh";
+  # The paulwtf hosts accept only this key (fluxcd bootstrap/access-keys).
+  programs.ssh.settings = lib.genAttrs
+    [ "github.com" "server01" "server02" "server03" "pelican" "host01" "dev" ]
+    (_: { IdentityAgent = "${config.programs.gpg.homedir}/S.gpg-agent.ssh"; });
 
   # git is not configured by nix-darwin the way common/programs.nix does it on
   # NixOS, so the signing half lives here. Identity (user.name/email) stays in

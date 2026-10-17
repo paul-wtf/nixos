@@ -66,7 +66,6 @@ in
     fluxcd
     kubectl
     kubelogin-oidc
-    teleport
     (prismlauncher.override {
       jdks = [
         zulu8
