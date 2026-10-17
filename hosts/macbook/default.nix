@@ -1,4 +1,29 @@
 { pkgs, tidaluna, ... }:
+let
+  system = pkgs.stdenv.hostPlatform.system;
+  tidalunaPkgs = import tidaluna.inputs.nixpkgs {
+    inherit system;
+    config.allowUnfree = true;
+  };
+  # TidaLuna 1.17.1-beta pins one pnpm-deps hash for both platforms, but pnpm
+  # fetches platform-specific binaries, so it only matches on Linux. Drop this
+  # once upstream ships a separate darwin hash.
+  tidalunaInjection = tidaluna.packages.${system}.injection.overrideAttrs (old: {
+    pnpmDeps = old.pnpmDeps.overrideAttrs {
+      outputHash = "sha256-vYbX9AZjkXu34jGF4demR9x+Nlac6gP1gniKqED5PyQ=";
+    };
+  });
+  tidal = tidalunaPkgs.tidal.overrideAttrs (old: {
+    postInstall = (old.postInstall or "") + ''
+      if [ -f "$out/Applications/TIDAL.app/Contents/Resources/app.asar" ]; then
+        mv "$out/Applications/TIDAL.app/Contents/Resources/app.asar" \
+           "$out/Applications/TIDAL.app/Contents/Resources/original.asar"
+      fi
+      mkdir -p "$out/Applications/TIDAL.app/Contents/Resources/app/"
+      cp -R ${tidalunaInjection}/* "$out/Applications/TIDAL.app/Contents/Resources/app/"
+    '';
+  });
+in
 {
   imports = [ ./yabai.nix ./homebrew.nix ./sudo-askpass.nix ];
 
@@ -39,9 +64,7 @@
   # fetcherVersion=3 used by TidaLuna. The Linux wrapper
   # (--password-store=gnome-libsecret) is not needed here: Electron's safeStorage
   # automatically uses the Keychain on macOS.
-  environment.systemPackages = [
-    tidaluna.packages.${pkgs.stdenv.hostPlatform.system}.default
-  ];
+  environment.systemPackages = [ tidal ];
 
   # System-wide dark mode.
   system.defaults.NSGlobalDomain.AppleInterfaceStyle = "Dark";
