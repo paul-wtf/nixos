@@ -10,10 +10,20 @@ let
   # The store's own sync.sh links every project memory on this machine into
   # it, nested repos (~/git/cyperia/core -> cyperia-core) included, so there
   # is no project list here.
+
+  # git-sync.sh in the store does the git side and never leaves a rebase
+  # behind; it signs, so it needs the same gpg as the agent.
+  path = lib.makeBinPath (with pkgs; [ bash coreutils diffutils gnugrep gnused git openssh config.programs.gpg.package ]);
   syncScript = pkgs.writeShellScript "claude-memory-sync" ''
-    export PATH=${lib.makeBinPath (with pkgs; [ bash coreutils diffutils gnugrep gnused git openssh ])}:$PATH
-    git -C ${store} pull --rebase --autostash --quiet || true
+    export PATH=${path}:$PATH
+    if [ -f ${store}/git-sync.sh ]; then bash ${store}/git-sync.sh
+    else git -C ${store} pull --rebase --autostash --quiet || git -C ${store} rebase --abort; fi
     [ -f ${store}/sync.sh ] && bash ${store}/sync.sh || true
+  '';
+  pushScript = pkgs.writeShellScript "claude-memory-push" ''
+    export PATH=${path}:$PATH
+    [ -f ${store}/git-sync.sh ] && bash ${store}/git-sync.sh --push > /dev/null 2>&1
+    true
   '';
 
   # ── Global CLAUDE.md ─────────────────────────────────────────────────────
@@ -70,12 +80,11 @@ in
       }];
     }];
 
-    # On session end, push back local changes (only when something changed,
-    # race-safe via pull --rebase before push, || true so the session is not blocked).
+    # On session end, commit and push local changes.
     Stop = [{
       hooks = [{
         type = "command";
-        command = "${pkgs.git}/bin/git -C ${store} add -A && ${pkgs.git}/bin/git -C ${store} diff --cached --quiet || (${pkgs.git}/bin/git -C ${store} commit -qm 'sync: memory update' && ${pkgs.git}/bin/git -C ${store} pull --rebase --autostash && ${pkgs.git}/bin/git -C ${store} push) || true";
+        command = "${pushScript}";
       }];
     }];
   };
