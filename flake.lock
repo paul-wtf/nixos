@@ -485,11 +485,11 @@
     "streamcontroller-tidal": {
       "flake": false,
       "locked": {
-        "lastModified": 1792178981,
-        "narHash": "sha256-ABYhVT5+hcP33PSR7iPkJK0fYWNY8hdNtQrHAQyLSd0=",
+        "lastModified": 1792341459,
+        "narHash": "sha256-iaPWgA51X6tJsABU1bMXQQdAWIsnBoSYqZHbBYRAfn8=",
         "owner": "paul-wtf",
         "repo": "streamcontroller-tidal",
-        "rev": "1219621733f51d2e7669000cfe327d1ec6d643a9",
+        "rev": "48e2c90d178a2f2ab02133be308c8873fd7b8320",
         "type": "github"
       },
       "original": {
