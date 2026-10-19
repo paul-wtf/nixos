@@ -86,7 +86,7 @@ in
         # Result was a FileNotFoundError during prefix setup on every game start.
         PROTON_LOCAL_SHADER_CACHE = "1";
         PROTON_USE_NTSYNC = "1";                 # ntsync instead of fsync (/dev/ntsync)
-        PROTON_VKD3D_HEAP = "1";                 # fixes NVIDIA Xid 109 crashes
+        VKD3D_CONFIG = "descriptor_heap";        # Xid 109 hangs with Wayland+HDR (vkd3d-proton #3327)
         __GL_SHADER_DISK_CACHE_SKIP_CLEANUP = "1";
       };
     };
