@@ -46,6 +46,18 @@ let
       wrapProgram $out/bin/claude-desktop --add-flags "--password-store=gnome-libsecret"
     '';
   };
+
+  slack = pkgs.symlinkJoin {
+    name = "slack-gnome-libsecret";
+    paths = [ pkgs.slack ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      wrapProgram $out/bin/slack --add-flags "--password-store=gnome-libsecret"
+      rm $out/share/applications/slack.desktop
+      substitute ${pkgs.slack}/share/applications/slack.desktop $out/share/applications/slack.desktop \
+        --replace-fail ${pkgs.slack}/bin/slack $out/bin/slack
+    '';
+  };
 in
 {
   nixpkgs.config.allowUnfree = true;
@@ -75,6 +87,7 @@ in
       ];
     })
     telegram-desktop
+    slack
     seadrive-gui
     davinci-resolve-studio
     fping
