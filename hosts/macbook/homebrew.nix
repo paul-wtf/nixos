@@ -7,6 +7,7 @@
       "brave-origin"
       "vorssaint"
       "obsidian"
+      "proton-mail-bridge"
     ];
   };
 }
