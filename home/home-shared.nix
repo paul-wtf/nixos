@@ -13,6 +13,7 @@
     ./program-configs/shared/claude-memory-sync.nix
     ./program-configs/shared/theming.nix
     ./program-configs/shared/ssh.nix
+    ./program-configs/shared/thunderbird.nix
   ];
 
   home.stateVersion = "26.05";

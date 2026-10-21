@@ -11,6 +11,7 @@
     ./program-configs/linux/rofi.nix
     ./program-configs/linux/xdg-mime.nix
     ./program-configs/linux/gpg-agent.nix
+    ./program-configs/linux/protonmail-bridge.nix
   ];
 
   home.username = "paul";
