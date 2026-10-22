@@ -4,6 +4,7 @@ let
 
   # oratory1990 measurement, post-2020 earpads, AutoEq Harman over-ear target.
   preamp = -6.6;
+  bass = 7;
   filters = [
     { label = "bq_lowshelf"; freq = 105; q = 0.70; gain = 8.9; }
     { label = "bq_peaking"; freq = 56; q = 0.40; gain = -4.5; }
@@ -19,9 +20,9 @@ let
 
   # A high shelf at 0 Hz is a flat gain.
   stages =
-    [ { name = "preamp"; label = "bq_highshelf"; freq = 0; q = 1.0; gain = preamp; } ]
+    [ { name = "preamp"; label = "bq_highshelf"; freq = 0; q = 1.0; gain = preamp - bass; } ]
     ++ lib.imap1 (i: f: f // { name = "f${toString i}"; }) filters
-    ++ [ { name = "bass"; label = "bq_lowshelf"; freq = 105; q = 0.70; gain = 0.0; } ];
+    ++ [ { name = "bass"; label = "bq_lowshelf"; freq = 105; q = 0.70; gain = bass; } ];
 
   node = s: ''
     { type = builtin name = ${s.name} label = ${s.label} control = { "Freq" = ${toString s.freq} "Q" = ${toString s.q} "Gain" = ${toString s.gain} } }'';
@@ -114,7 +115,7 @@ let
           for id in $(alpha_streams); do
             pw-metadata -n default "$id" target.object sundara_eq >/dev/null
           done
-          set_bass "''${2:-0}"
+          set_bass "''${2:-${toString bass}}"
           ;;
         off)
           for id in $(alpha_streams); do
