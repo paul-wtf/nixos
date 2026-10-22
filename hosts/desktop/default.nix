@@ -27,6 +27,7 @@
       ./rodecaster-volume-bridge.nix
       ./mangohud.nix
       ./hyprland-monitors.nix
+      ./sundara-eq.nix
     ];
   networking.hostName = "paul-desktop";
 
