@@ -20,6 +20,12 @@ let
     else git -C ${store} pull --rebase --autostash --quiet || git -C ${store} rebase --abort; fi
     [ -f ${store}/sync.sh ] && bash ${store}/sync.sh || true
   '';
+  # Index of the project's memories from the memory server. Reads its API key
+  # from ~/.config/claude-memory/mcp-api-key, which is placed by hand.
+  contextScript = pkgs.writeShellScript "claude-memory-context" ''
+    [ -f ${store}/memory-context.py ] && ${pkgs.python3}/bin/python3 ${store}/memory-context.py
+    true
+  '';
   pushScript = pkgs.writeShellScript "claude-memory-push" ''
     export PATH=${path}:$PATH
     [ -f ${store}/git-sync.sh ] && bash ${store}/git-sync.sh --push > /dev/null 2>&1
@@ -70,14 +76,17 @@ in
   # ── Sync hooks ───────────────────────────────────────────────────────────
   # Merged into ~/.claude/settings.json (home-manager combines
   # programs.claude-code.settings across modules).
+  # Memories live on the memory server; the store's project folders are an archive.
+  programs.claude-code.settings.autoMemoryEnabled = false;
+
   programs.claude-code.settings.hooks = {
     # On session start, fetch the latest state from the other devices and link
     # projects that are new on this machine.
     SessionStart = [{
-      hooks = [{
-        type = "command";
-        command = "${syncScript}";
-      }];
+      hooks = [
+        { type = "command"; command = "${syncScript}"; }
+        { type = "command"; command = "${contextScript}"; }
+      ];
     }];
 
     # On session end, commit and push local changes.
