@@ -11,7 +11,6 @@
     ./coolercontrol.nix
     ./lact.nix
     ./streamcontroller.nix
-    ./dlss5-swapper.nix
     ./tiny4linux.nix
     ./logitech.nix
     ./vr.nix
