@@ -12,6 +12,7 @@
     ./lact.nix
     ./streamcontroller.nix
     ./tiny4linux.nix
+    ./horizon.nix
     ./logitech.nix
     ./vr.nix
     ./xeneon-edge.nix
