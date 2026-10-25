@@ -1,10 +1,15 @@
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 {
   # Language server for Nix (completion, hover, go-to-definition)
   home.packages = [ pkgs.nixd ];
 
   programs.vim = {
     enable = true;
+
+    # nixpkgs defaults vim-full on darwin to an X11 GTK2 GUI, which nothing on the Mac uses.
+    packageConfigurable = lib.mkIf pkgs.stdenv.hostPlatform.isDarwin (
+      pkgs.vim-full.override { guiSupport = "none"; }
+    );
 
     plugins = with pkgs.vimPlugins; [
       catppuccin-vim
