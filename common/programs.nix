@@ -21,14 +21,16 @@ let
     extraBwrapArgs = (old.extraBwrapArgs or [ ]) ++ [ "--symlink /.host-etc/egl /etc/egl" ];
   });
 
-  # WebKitGTK's DMA-BUF renderer crashes on NVIDIA/Wayland with
-  # "Error 71 (Protocol error) dispatching to Wayland display".
+  # NVIDIA's EGL attaches explicit sync to the GTK window's wl_surface, then
+  # GTK commits an SHM buffer there without an acquire timeline and the
+  # compositor kills the client (Error 71). WEBKIT_DISABLE_DMABUF_RENDERER
+  # avoids that only by dropping to CPU rendering, which breaks 3D transforms.
   noriskclient-launcher = pkgs.symlinkJoin {
-    name = "noriskclient-launcher-no-dmabuf";
+    name = "noriskclient-launcher-no-explicit-sync";
     paths = [ pkgs.noriskclient-launcher ];
     nativeBuildInputs = [ pkgs.makeWrapper ];
     postBuild = ''
-      wrapProgram $out/bin/noriskclient-launcher-v3 --set WEBKIT_DISABLE_DMABUF_RENDERER 1
+      wrapProgram $out/bin/noriskclient-launcher-v3 --set __NV_DISABLE_EXPLICIT_SYNC 1
     '';
   };
 
