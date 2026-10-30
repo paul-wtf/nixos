@@ -116,6 +116,7 @@ in
     kind
     podman
     kubernetes-helm
+    lunar-client
   ];
   programs.kdeconnect.enable = true;
 
