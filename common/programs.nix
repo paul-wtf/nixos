@@ -21,6 +21,11 @@ let
     extraBwrapArgs = (old.extraBwrapArgs or [ ]) ++ [ "--symlink /.host-etc/egl /etc/egl" ];
   });
 
+  # Same /etc/egl gap as labymod-launcher.
+  lunar-client = pkgs.lunar-client.overrideAttrs (old: {
+    extraBwrapArgs = (old.extraBwrapArgs or [ ]) ++ [ "--symlink /.host-etc/egl /etc/egl" ];
+  });
+
   # NVIDIA's EGL attaches explicit sync to the GTK window's wl_surface, then
   # GTK commits an SHM buffer there without an acquire timeline and the
   # compositor kills the client (Error 71). WEBKIT_DISABLE_DMABUF_RENDERER
