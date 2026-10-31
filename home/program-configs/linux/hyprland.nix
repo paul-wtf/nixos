@@ -116,7 +116,6 @@ in
             hl.exec_cmd("uwsm app -- steam -silent")
             hl.exec_cmd("uwsm app -- gsr-ui")
             hl.exec_cmd("uwsm app -- Telegram -startintray")
-            hl.exec_cmd("uwsm app -- seadrive-gui")
         end)
       '';
     };
