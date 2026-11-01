@@ -192,7 +192,10 @@ in
 
         # The default (2) only holds VRR for content-type "game", which Proton
         # games don't set; mouse movement then pushes the panel to 240 Hz.
-        cursor = { no_break_fs_vrr = 1; };
+        cursor = {
+          no_break_fs_vrr = 1;
+          warp_on_monitor_change = 1;
+        };
 
         input = {
           kb_layout = "de";
