@@ -51,6 +51,18 @@ let
       (cd "$assets" && ${pkgs.curl}/bin/curl -fsS --parallel --create-dirs --skip-existing -K ${assetDownloads})
       install -Dm644 ${assetIndex} "$assets/indexes/1.8.json"
     fi
+    # Java 8 reads DNS servers from per-adapter registry keys that Wine leaves
+    # empty, so Minecraft's SRV lookup goes to localhost:53. Wine names its
+    # adapters after the Linux ifindex.
+    nameservers=$(awk '$1 == "nameserver" { printf "%s%s", sep, $2; sep = " " }' /etc/resolv.conf)
+    {
+      printf 'Windows Registry Editor Version 5.00\r\n'
+      for nic in /sys/class/net/*; do
+        printf '\r\n[HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\{%08X-0000-0000-0000-4E6574446576}]\r\n"NameServer"="%s"\r\n' \
+          "$(cat "$nic/ifindex")" "$nameservers"
+      done
+    } > "$WINEPREFIX/drive_c/windows/temp/augustus-dns.reg"
+    ${wine-ge}/bin/wine regedit /S 'C:\windows\temp\augustus-dns.reg'
     cd "$dir"
     exec ${wine-ge}/bin/wine ${jdk-win}/bin/javaw.exe -jar "$jar" "$@"
   '';
