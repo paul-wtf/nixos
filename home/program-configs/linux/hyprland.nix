@@ -194,7 +194,6 @@ in
         # games don't set; mouse movement then pushes the panel to 240 Hz.
         cursor = {
           no_break_fs_vrr = 1;
-          warp_on_monitor_change = 1;
         };
 
         input = {
