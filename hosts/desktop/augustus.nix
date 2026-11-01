@@ -14,6 +14,15 @@ let
     hash = "sha256-Vh1kA0uiPaLLqhggBF2NLxAjOcoNBKF/xWg7FhHuzbk=";
   };
 
+  assetIndex = pkgs.fetchurl {
+    url = "https://launchermeta.mojang.com/v1/packages/f6ad102bcaa53b1a58358f16e376d548d44933ec/1.8.json";
+    sha1 = "f6ad102bcaa53b1a58358f16e376d548d44933ec";
+  };
+
+  assetDownloads = pkgs.runCommand "augustus-assets-1.8.curl" { nativeBuildInputs = [ pkgs.jq ]; } ''
+    jq -r '.objects[].hash | "url = \"https://resources.download.minecraft.net/\(.[:2])/\(.)\"\noutput = \"objects/\(.[:2])/\(.)\""' ${assetIndex} > $out
+  '';
+
   launch = pkgs.writeShellScript "augustus-launch" ''
     set -eu
     dir="''${XDG_DATA_HOME:-$HOME/.local/share}/augustus"
@@ -33,6 +42,14 @@ let
       # C:\windows\Fonts, which Wine leaves empty.
       install -m644 -t "$WINEPREFIX/drive_c/windows/Fonts" \
         ${wine-ge}/share/wine/fonts/tahoma.ttf ${wine-ge}/share/wine/fonts/tahomabd.ttf
+    fi
+    # The client expects the vanilla 1.8 assets (sounds, languages) that only
+    # Mojang's own launcher downloads.
+    assets="$WINEPREFIX/drive_c/users/$USER/AppData/Roaming/.minecraft/assets"
+    if [ ! -f "$assets/indexes/1.8.json" ]; then
+      mkdir -p "$assets"
+      (cd "$assets" && ${pkgs.curl}/bin/curl -fsS --parallel --create-dirs --skip-existing -K ${assetDownloads})
+      install -Dm644 ${assetIndex} "$assets/indexes/1.8.json"
     fi
     cd "$dir"
     exec ${wine-ge}/bin/wine ${jdk-win}/bin/javaw.exe -jar "$jar" "$@"
