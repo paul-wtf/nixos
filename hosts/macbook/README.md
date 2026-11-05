@@ -16,11 +16,33 @@ The WM is **yabai** (real binary space partitioning, equivalent to Hyprland's dw
 2. `sudo darwin-rebuild switch --flake .#macbook` (or, the very first time,
    `sudo nix run nix-darwin/master#darwin-rebuild -- switch --flake .#macbook`).
 3. Grant the **Accessibility permission** for **yabai** AND **skhd**
-   (System Settings → Privacy & Security → Accessibility).
+   (System Settings → Privacy & Security → Accessibility). The entries are
+   `/usr/local/libexec/nix-codesign/yabai` and `.../skhd`, not store paths;
+   see "Stable Accessibility grant" below.
 4. Restart yabai/skhd (`launchctl kickstart -k gui/$(id -u)/org.nixos.yabai`
    and `... org.nixos.skhd` — NOT `yabai --restart-service`, which manages yabai's
    own launchd plists and starts a second instance next to the org.nixos.* services)
    or log out and back in. The 10 spaces are created automatically when yabai starts.
+
+## Stable Accessibility grant
+
+TCC ties the Accessibility grant of a bare binary to its path and its code
+signature requirement. Nix store paths change with every flake update that
+touches the build inputs, and yabai's ad-hoc cdhash often changes too, so a
+grant on the store binary is lost after almost every update.
+
+`codesign.nix` therefore copies yabai and skhd to `/usr/local/libexec/nix-codesign/`
+during activation and signs them with a local self-signed certificate; the
+launchd agents run those copies (`Program`). The grant then matches
+`identifier yabai and certificate leaf = H"…"` and survives rebuilds.
+
+- The certificate and its keychain are created on the first activation in
+  `/var/db/nix-codesign/` (root only). If that directory is deleted, the next
+  switch creates a new certificate and the grant has to be given once more.
+- `sudo yabai --load-sa` keeps using the store binary, because nix-darwin's
+  sudoers rule pins that binary's sha256.
+- `ps` still shows the store path. That is only argv[0]; the executable is the
+  signed copy (`launchctl print gui/$(id -u)/org.nixos.yabai | grep program`).
 
 ## After macOS updates
 

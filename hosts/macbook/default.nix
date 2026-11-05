@@ -25,7 +25,7 @@ let
   });
 in
 {
-  imports = [ ./yabai.nix ./homebrew.nix ./sudo-askpass.nix ];
+  imports = [ ./yabai.nix ./codesign.nix ./homebrew.nix ./sudo-askpass.nix ];
 
   # Terminal/UI font for the whole system (kitty, sketchybar-style tooling).
   # Used to live in sketchybar.nix; the bar itself was removed (disabled
