@@ -95,7 +95,6 @@ in
     })
     telegram-desktop
     slack
-    seadrive-gui
     davinci-resolve-studio
     fping
     gh
