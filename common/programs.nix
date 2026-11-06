@@ -87,7 +87,8 @@ in
     kubelogin-oidc
     (prismlauncher.override {
       jdks = [
-        zulu8
+        # gtkSupport pulls in gtk2, which nixpkgs marks broken; Minecraft never uses AWT's GTK look and feel
+        (zulu8.override { gtkSupport = false; })
         zulu17
         zulu21
         zulu25
