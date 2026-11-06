@@ -13,6 +13,7 @@
     ./streamcontroller.nix
     ./tiny4linux.nix
     ./horizon.nix
+    ./augustus.nix
     ./logitech.nix
     ./vr.nix
     ./xeneon-edge.nix
