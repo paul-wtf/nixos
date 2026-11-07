@@ -8,6 +8,7 @@
       "vorssaint"
       "obsidian"
       "proton-mail-bridge"
+      "lunar-client"
     ];
   };
 }
