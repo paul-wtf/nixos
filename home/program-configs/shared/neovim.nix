@@ -1,9 +1,9 @@
 { lib, pkgs, ... }:
 {
-  # vim stays the EDITOR and keeps its own config in vim.nix; neovim runs
-  # alongside it as `nvim`.
   programs.neovim = {
     enable = true;
+    # User sessions only: on NixOS, root keeps vim from common/environment.nix.
+    defaultEditor = true;
 
     extraPackages = with pkgs; [ nixd ripgrep fd fzf ];
 
