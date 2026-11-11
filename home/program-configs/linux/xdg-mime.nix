@@ -5,7 +5,7 @@
     enable = true;
     defaultApplications = {
       "inode/directory" = "thunar.desktop";   # open folders with Thunar
-      "inode/mount-point" = "thunar.desktop"; # FUSE mounts like SeaDrive
+      "inode/mount-point" = "thunar.desktop";
       "text/html" = "brave-origin.desktop";
       "x-scheme-handler/http" = "brave-origin.desktop";
       "x-scheme-handler/https" = "brave-origin.desktop";
