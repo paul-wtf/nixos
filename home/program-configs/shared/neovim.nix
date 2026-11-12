@@ -1,5 +1,27 @@
 { lib, pkgs, ... }:
+let
+  # $NVIM is only set when Claude runs in nvim's own terminal.
+  followScript = pkgs.writeShellScript "claude-nvim-follow" ''
+    [ -n "''${NVIM:-}" ] || exit 0
+    expr=$(${lib.getExe pkgs.jq} -r '
+      { path: .tool_input.file_path,
+        needle: ((.tool_input.new_string // .tool_input.edits[0].new_string // "")
+                 | split("\n") | max_by(length) // "" | gsub("^\\s+|\\s+$"; "")) }
+      | "v:lua.ClaudeFollow(\"" + (tojson | @base64) + "\")"
+    ') || exit 0
+    ${pkgs.coreutils}/bin/timeout 2 ${lib.getExe pkgs.neovim-unwrapped} \
+      --server "$NVIM" --remote-expr "$expr" > /dev/null 2>&1
+    exit 0
+  '';
+in
 {
+  # Auto mode applies edits without a permission prompt, so claudecode.nvim never
+  # gets a diff to show; this opens the edited file in nvim instead.
+  programs.claude-code.settings.hooks.PostToolUse = [{
+    matcher = "Edit|Write|MultiEdit";
+    hooks = [{ type = "command"; command = "${followScript}"; }];
+  }];
+
   programs.neovim = {
     enable = true;
     # User sessions only: on NixOS, root keeps vim from common/environment.nix.
@@ -191,6 +213,33 @@
         map("v", "<leader>as", "<cmd>ClaudeCodeSend<cr>", { desc = "Send selection" })
         map("n", "<leader>aa", "<cmd>ClaudeCodeDiffAccept<cr>", { desc = "Accept diff" })
         map("n", "<leader>ad", "<cmd>ClaudeCodeDiffDeny<cr>", { desc = "Deny diff" })
+
+        -- Called by the claude-nvim-follow hook; keeps focus in the Claude terminal.
+        function _G.ClaudeFollow(payload)
+          local args = vim.json.decode(vim.base64.decode(payload))
+          local win
+          for _, w in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+            if vim.bo[vim.api.nvim_win_get_buf(w)].buftype == ""
+              and not vim.wo[w].diff
+              and vim.api.nvim_win_get_config(w).relative == "" then
+              win = w
+              break
+            end
+          end
+          if not win then return 0 end
+          vim.api.nvim_win_call(win, function()
+            if not pcall(vim.cmd, "edit " .. vim.fn.fnameescape(args.path)) then return end
+            if args.needle == "" then return end
+            for i, line in ipairs(vim.api.nvim_buf_get_lines(0, 0, -1, false)) do
+              if line:find(args.needle, 1, true) then
+                vim.api.nvim_win_set_cursor(win, { i, 0 })
+                vim.cmd("normal! zz")
+                break
+              end
+            end
+          end)
+          return 0
+        end
       ''
     ];
   };
