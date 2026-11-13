@@ -7,7 +7,10 @@
     };
     tidaluna.url = "github:Inrixia/TidaLuna";
     nixcord.url = "github:FlameFlag/nixcord";
-    catppuccin.url = "github:catppuccin/nix";
+    catppuccin = {
+      url = "github:catppuccin/nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";

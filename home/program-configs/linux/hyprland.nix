@@ -1,8 +1,7 @@
 { pkgs, dotfiles, ... }:
 let
-  # Only the colours hyprland.lua actually uses; the full palette moves into the
-  # shared module later. Quickshell's Theme.qml hardcodes the same literals in
-  # its hyprctl eval payload -- keep them in sync.
+  # Quickshell's Theme.qml hardcodes the same literals in its hyprctl eval
+  # payload -- keep them in sync.
   #
   # Stored as bare hex so the opaque and the translucent form of a colour cannot
   # drift apart: the glow gradient is the same sky/teal at 40% alpha.
@@ -38,9 +37,7 @@ in
     # PropagatesStopTo=graphical-session.target -> Hyprland exits ~2s after login.
     systemd.enable = false;
 
-    # Hyprland 0.57 removes the .conf format. 0.56 still accepts both, and
-    # Hyprland prefers hyprland.lua whenever it exists -- so flipping this back
-    # to "hyprlang" is a complete rollback.
+    # Hyprland 0.57 no longer reads the hyprlang .conf format.
     configType = "lua";
 
     # NOTE: Session env lives in ~/.config/uwsm/env-hyprland (see below).
@@ -69,24 +66,6 @@ in
             -- a uwsm login -- so without this the property is empty after every
             -- reboot. Connecting also starts XWayland if it is still lazy.
             hl.exec_cmd("${pkgs.xrdb}/bin/xrdb -merge $HOME/.Xresources")
-
-            -- NVIDIA 3-display cold-boot bug: if all monitors come up at the same time,
-            -- the main monitor does not get 4K@240 (DSC/head allocation). Fix: briefly take
-            -- DP-2 out (main jumps to 240), then back via reload with the full HDR config.
-            -- `hyprctl keyword` does not work under the Lua config manager (returns
-            -- "keyword can't work with non-legacy parsers. Use eval."), so the disable step
-            -- now calls hl.monitor() directly instead of shelling out; the restore step still
-            -- goes through `hyprctl reload` (unaffected by the keyword restriction) so it
-            -- picks the full HDR config back up from hyprland-monitors.nix instead of
-            -- guessing at hl.monitor's re-enable fields. Only needed if the cold-boot bug
-            -- reappears.
-            -- hl.timer(function()
-            --     hl.monitor({ output = "DP-2", disabled = true })
-            --     hl.monitor({ output = "DP-3", disabled = true })
-            --     hl.timer(function()
-            --         hl.exec_cmd("hyprctl reload")
-            --     end, { timeout = 1000, type = "oneshot" })
-            -- end, { timeout = 3000, type = "oneshot" })
 
             -- GUI apps via `uwsm app --`: they land in their own systemd scopes
             -- (app.slice) instead of as children of the compositor -> clean
@@ -244,9 +223,5 @@ in
     export QT_STYLE_OVERRIDE=kvantum
   '';
 
-  # Companion tools the session needs NOW (launcher). Grows in round 2.
-  # playerctl backs the XF86AudioNext/Pause/Play/Prev binds in hypr/binds.lua. It
-  # was never declared anywhere, so those four keys had been dead since long
-  # before the Lua migration -- the binds fire, they just called a missing binary.
   home.packages = with pkgs; [ rofi quickshell jq cava awww playerctl ];
 }

@@ -119,7 +119,6 @@ in
     go
     wl-clipboard
     kind
-    podman
     kubernetes-helm
     lunar-client
   ];

@@ -21,9 +21,6 @@ in
   # Claude Code declaratively via the home-manager module. It writes
   # ~/.claude/settings.json as a (read-only) Nix-store symlink — so change
   # settings HERE, not at runtime via /config (that would not persist).
-  # The claude binary comes via home.packages from this module, which is
-  # why it was removed from common/programs.nix. tmux itself stays
-  # system-wide in common/programs.nix.
   programs.claude-code = {
     enable = true;
 
