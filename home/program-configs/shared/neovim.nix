@@ -111,18 +111,21 @@ let
     '';
   };
 
-  # Claude Code writes background output to <tmp>/claude-<uid>/<project>/<session>/tasks/<id>.output
-  # but names only the task id in the hook payload.
+  # Claude Code writes task output to <tmp>/claude-<uid>/<project>/<process>/tasks/<id>.output.
+  # <process> equals session_id only until a resume, so the hooks search the whole project;
+  # <project> is the directory of transcript_path.
+  setProject = ''project=/tmp/claude-$(id -u)/$(basename "$(dirname "$($jq -r .transcript_path <<< "$input")")")'';
+
   backgroundLogScript = pkgs.writeShellScript "claude-nvim-background-log" ''
     [ -n "''${NVIM:-}" ] || exit 0
     input=$(cat)
     jq=${lib.getExe pkgs.jq}
     task=$($jq -r '.tool_response.backgroundTaskId // empty' <<< "$input")
     [ -n "$task" ] || exit 0
-    session=$($jq -r '.session_id' <<< "$input")
     title=$($jq -r '.tool_input.description // .tool_input.command' <<< "$input")
+    ${setProject}
     for _ in 1 2 3 4 5 6 7 8 9 10; do
-      for f in /tmp/claude-"$(id -u)"/*/"$session"/tasks/"$task".output; do
+      for f in "$project"/*/tasks/"$task".output; do
         [ -e "$f" ] && exec ${lib.getExe nvimLog} show "$f" "$title"
       done
       sleep 0.1
@@ -140,7 +143,6 @@ let
     input=$(cat)
     $jq -e '.tool_input.run_in_background != true
       and (.tool_input.command | contains("nvim-log") | not)' <<< "$input" > /dev/null || exit 0
-    session=$($jq -r '.session_id' <<< "$input")
     tool=$($jq -r '.tool_use_id' <<< "$input")
     title=$($jq -r '.tool_input.description // (.tool_input.command | split("\n")[0])' <<< "$input")
     state="''${XDG_STATE_HOME:-$HOME/.local/state}/nvim-log/tools"
@@ -148,13 +150,13 @@ let
     find "$state" -type f -mmin +60 -delete 2> /dev/null || true
     : > "$state/$tool.pending"
     shopt -s nullglob
-    tasks=/tmp/claude-$(id -u)
-    before=" $(echo "$tasks"/*/"$session"/tasks/*.output) "
+    ${setProject}
+    before=" $(echo "$project"/*/tasks/*.output) "
     (
       sleep 2
       rm -f "$state/$tool.pending"
       [ -e "$state/$tool.done" ] && { rm -f "$state/$tool.done"; exit 0; }
-      for f in "$tasks"/*/"$session"/tasks/*.output; do
+      for f in "$project"/*/tasks/*.output; do
         case $before in *" $f "*) continue ;; esac
         echo "$f" > "$state/$tool.path"
         exec ${lib.getExe nvimLog} show "$f" "$title"
