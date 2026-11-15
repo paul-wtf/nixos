@@ -20,7 +20,7 @@ let
     text = ''
       usage() {
         cat >&2 <<'EOF'
-      usage: nvim-log run [title] -- command [args...]
+      usage: nvim-log run [-n lines] [title] -- command [args...]
              nvim-log pipe [title]
              nvim-log show file [title]
              nvim-log progress current total [message]
@@ -52,17 +52,25 @@ let
       case $cmd in
         run)
           title=""
+          lines=""
+          if [ "''${1:-}" = "-n" ]; then lines=''${2:-}; shift 2 || usage; fi
           if [ "''${1:-}" != "--" ]; then title=''${1:-}; shift || true; fi
           [ "''${1:-}" = "--" ] || usage
           shift
           [ $# -gt 0 ] || usage
           [ -n "$title" ] || title="$*"
-          [ -n "''${NVIM:-}" ] || exec "$@"
+          if [ -z "''${NVIM:-}" ] && [ -z "$lines" ]; then exec "$@"; fi
           new_log "$title"
           call show --arg path "$log_file" --arg title "$title"
           set +e
-          "$@" 2>&1 | tee -a "$log_file"
-          rc=''${PIPESTATUS[0]}
+          if [ -n "$lines" ]; then
+            "$@" >> "$log_file" 2>&1
+            rc=$?
+            tail -n "$lines" "$log_file"
+          else
+            "$@" 2>&1 | tee -a "$log_file"
+            rc=''${PIPESTATUS[0]}
+          fi
           set -e
           call finish --argjson code "$rc"
           exit "$rc"
@@ -82,6 +90,16 @@ let
         progress)
           [ $# -ge 2 ] || usage
           call progress --argjson current "$1" --argjson total "$2" --arg message "''${*:3}"
+          ;;
+        finish)
+          [ $# -ge 1 ] || usage
+          if [ "''${2:-}" = failed ]; then
+            call finish --arg path "$(realpath -m "$1")" --argjson failed true
+          elif [ $# -ge 2 ]; then
+            call finish --arg path "$(realpath -m "$1")" --argjson code "$2"
+          else
+            call finish --arg path "$(realpath -m "$1")"
+          fi
           ;;
         close)
           call close
@@ -112,15 +130,67 @@ let
     exit 0
   '';
 
+  # Foreground commands also write to a task file, which Claude Code deletes when they end and
+  # the payload never names, so the file that appears after this hook is taken as theirs.
+  # Rewriting the command via updatedInput instead makes permission rules and the safety
+  # checks judge the wrapper rather than the command.
+  foregroundLogScript = pkgs.writeShellScript "claude-nvim-foreground-log" ''
+    [ -n "''${NVIM:-}" ] || exit 0
+    jq=${lib.getExe pkgs.jq}
+    input=$(cat)
+    $jq -e '.tool_input.run_in_background != true
+      and (.tool_input.command | contains("nvim-log") | not)' <<< "$input" > /dev/null || exit 0
+    session=$($jq -r '.session_id' <<< "$input")
+    tool=$($jq -r '.tool_use_id' <<< "$input")
+    title=$($jq -r '.tool_input.description // (.tool_input.command | split("\n")[0])' <<< "$input")
+    state="''${XDG_STATE_HOME:-$HOME/.local/state}/nvim-log/tools"
+    mkdir -p "$state"
+    find "$state" -type f -mmin +60 -delete 2> /dev/null || true
+    : > "$state/$tool.pending"
+    shopt -s nullglob
+    tasks=/tmp/claude-$(id -u)
+    before=" $(echo "$tasks"/*/"$session"/tasks/*.output) "
+    (
+      sleep 2
+      rm -f "$state/$tool.pending"
+      [ -e "$state/$tool.done" ] && { rm -f "$state/$tool.done"; exit 0; }
+      for f in "$tasks"/*/"$session"/tasks/*.output; do
+        case $before in *" $f "*) continue ;; esac
+        echo "$f" > "$state/$tool.path"
+        exec ${lib.getExe nvimLog} show "$f" "$title"
+      done
+    ) < /dev/null > /dev/null 2>&1 &
+  '';
+
+  foregroundFinishScript = pkgs.writeShellScript "claude-nvim-foreground-finish" ''
+    [ -n "''${NVIM:-}" ] || exit 0
+    jq=${lib.getExe pkgs.jq}
+    input=$(cat)
+    tool=$($jq -r '.tool_use_id' <<< "$input")
+    state="''${XDG_STATE_HOME:-$HOME/.local/state}/nvim-log/tools"
+    if [ -e "$state/$tool.path" ]; then
+      f=$(cat "$state/$tool.path")
+      rm -f "$state/$tool.path"
+      code=$($jq -r 'if .hook_event_name == "PostToolUseFailure"
+        then ((.error // "" | tostring | capture("[Ee]xit code (?<c>[0-9]+)").c) // "failed")
+        else "0" end' <<< "$input")
+      exec ${lib.getExe nvimLog} finish "$f" "$code"
+    elif [ -e "$state/$tool.pending" ]; then
+      : > "$state/$tool.done"
+    fi
+  '';
+
   logContextScript = pkgs.writeShellScript "claude-nvim-log-context" ''
     [ -n "''${NVIM:-}" ] || exit 0
     cat <<'EOF'
     This session runs in a terminal inside nvim, which has a log pane for command output.
-    - Run builds, deploys, migrations, test suites and other long or chatty commands as
-      `nvim-log run "<title>" -- <command> [args...]` (shell syntax: `-- sh -c '...'`).
-      The output streams into the pane and still comes back to you; the exit code is the
-      command's. Programs that buffer when piped (Python) need their unbuffered flag.
-    - Background Bash commands show up in the pane on their own.
+    - Every Bash command still running after two seconds shows up in the pane on its own,
+      background commands right away. The pane shows what the command prints, after any
+      `| tail` or `> /dev/null` inside it.
+    - To keep the full output in the pane but only its last lines in your context, use
+      `nvim-log run -n 30 "<title>" -- <command> [args...]` (shell syntax: `-- sh -c '...'`)
+      instead of piping into tail; the exit code is the command's. Programs that buffer
+      when piped (Python) need their unbuffered flag.
     - During multi-step work (migrations, batch jobs, rollouts) report progress with
       `nvim-log progress <current> <total> "<message>"`.
     - `... | nvim-log pipe "<title>"` tees a pipeline into the pane; `nvim-log close` closes it.
@@ -140,9 +210,20 @@ in
       }
       {
         matcher = "Bash";
-        hooks = [{ type = "command"; command = "${backgroundLogScript}"; }];
+        hooks = [
+          { type = "command"; command = "${backgroundLogScript}"; }
+          { type = "command"; command = "${foregroundFinishScript}"; }
+        ];
       }
     ];
+    PostToolUseFailure = [{
+      matcher = "Bash";
+      hooks = [{ type = "command"; command = "${foregroundFinishScript}"; }];
+    }];
+    PreToolUse = [{
+      matcher = "Bash";
+      hooks = [{ type = "command"; command = "${foregroundLogScript}"; }];
+    }];
     SessionStart = [{
       hooks = [{ type = "command"; command = "${logContextScript}"; }];
     }];
@@ -389,7 +470,8 @@ in
             if p.message and p.message ~= "" then s = s .. "  " .. p.message end
           end
           if log.finished then
-            if log.code == nil then s = s .. "  · done"
+            if log.failed then s = s .. "  ✗ failed"
+            elseif log.code == nil then s = s .. "  · done"
             elseif log.code == 0 then s = s .. "  ✓"
             else s = s .. "  ✗ exit " .. log.code end
           end
@@ -427,6 +509,7 @@ in
 
         function log_ops.show(a)
           log_new(a.title)
+          log.path = a.path
           vim.api.nvim_win_call(log.win, function()
             log.job = vim.fn.jobstart(
               { "sh", "-c", 'exec tail -n +1 -F "$1" 2>/dev/null', "sh", a.path },
@@ -463,7 +546,8 @@ in
         end
 
         function log_ops.finish(a)
-          log.finished, log.code = true, a.code
+          if a.path and a.path ~= log.path then return end
+          log.finished, log.code, log.failed = true, a.code, a.failed
           log_winbar()
         end
 
