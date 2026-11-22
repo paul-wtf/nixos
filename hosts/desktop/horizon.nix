@@ -63,6 +63,11 @@ let
       export JAVA_HOME=${pkgs.zulu25}
     '';
 
+    # Horizon only binds its control socket below directories owned by the
+    # user or root; in the sandbox's user namespace the host's /run and /tmp
+    # belong to nobody, so it needs a /tmp of its own.
+    privateTmp = true;
+
     runScript = "horizon-launcher";
 
     extraInstallCommands = ''
