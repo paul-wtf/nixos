@@ -35,5 +35,8 @@
   # Minecraft (25565) for other NetBird peers only -- scoped to wt0 so the
   # server stays invisible on the LAN and from the internet.
   networking.firewall.interfaces.wt0.allowedTCPPorts = [ 25565 ];
+
+  # The router's DHCP hands out public resolvers; ask the router itself.
+  networking.networkmanager.settings."global-dns-domain-*".servers = "10.0.1.1";
   system.stateVersion = "26.05";
 }
