@@ -16,6 +16,10 @@
     IdentityAgent = "\${XDG_RUNTIME_DIR}/gnupg/S.gpg-agent.ssh";
   };
 
+  programs.neovim.initLua = lib.mkAfter ''
+    vim.g.clipboard = "osc52"
+  '';
+
   programs.claude-code.settings = {
     model = "opus[1m]";
     inputNeededNotifEnabled = true;
