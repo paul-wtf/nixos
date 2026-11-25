@@ -91,5 +91,13 @@
     darwinConfigurations = {
       macbook = mkDarwin "macbook";
     };
+
+    homeConfigurations."paul@devpod" = home-manager.lib.homeManagerConfiguration {
+      pkgs = import nixpkgs { system = "x86_64-linux"; config.allowUnfree = true; };
+      extraSpecialArgs = { inherit dotfiles rodecaster-volume-bridge nixcord catppuccin humanizer; };
+      modules = [ ./home/home-devpod.nix ];
+    };
+
+    packages.x86_64-linux.home-manager = home-manager.packages.x86_64-linux.home-manager;
   };
 }
