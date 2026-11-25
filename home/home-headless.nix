@@ -1,0 +1,18 @@
+{ ... }:
+{
+  imports = [
+    ./program-configs/shared/starship.nix
+    ./program-configs/shared/fish.nix
+    ./program-configs/shared/vim.nix
+    ./program-configs/shared/neovim.nix
+    ./program-configs/shared/tmux.nix
+    ./program-configs/shared/hyfetch.nix
+    ./program-configs/shared/fastfetch.nix
+    ./program-configs/shared/claude-code.nix
+    ./program-configs/shared/claude-memory-sync.nix
+    ./program-configs/shared/theming.nix
+    ./program-configs/shared/ssh.nix
+  ];
+
+  home.stateVersion = "26.05";
+}
