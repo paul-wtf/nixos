@@ -33,6 +33,7 @@ in
     # @thm_* variables only exist after the Catppuccin plugin has run.
     extraConfig = ''
       set -ga terminal-overrides ",xterm-kitty:Tc"
+      set -g set-clipboard on
       bind r source-file ~/.config/tmux/tmux.conf \; display "Config reloaded"
 
       # Click on a session name in the status bar -> switch to that

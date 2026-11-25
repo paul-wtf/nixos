@@ -294,6 +294,9 @@ in
         o.timeoutlen = 500
         o.mouse = "a"
         o.clipboard = "unnamedplus"
+        if not vim.env.WAYLAND_DISPLAY and not vim.env.DISPLAY then
+          vim.g.clipboard = "osc52"
+        end
 
         o.foldmethod = "indent"
         o.foldlevelstart = 99
