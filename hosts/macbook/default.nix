@@ -5,14 +5,7 @@ let
     inherit system;
     config.allowUnfree = true;
   };
-  # TidaLuna 1.17.1-beta pins one pnpm-deps hash for both platforms, but pnpm
-  # fetches platform-specific binaries, so it only matches on Linux. Drop this
-  # once upstream ships a separate darwin hash.
-  tidalunaInjection = tidaluna.packages.${system}.injection.overrideAttrs (old: {
-    pnpmDeps = old.pnpmDeps.overrideAttrs {
-      outputHash = "sha256-vYbX9AZjkXu34jGF4demR9x+Nlac6gP1gniKqED5PyQ=";
-    };
-  });
+  tidalunaInjection = tidaluna.packages.${system}.injection;
   tidal = tidalunaPkgs.tidal.overrideAttrs (old: {
     postInstall = (old.postInstall or "") + ''
       if [ -f "$out/Applications/TIDAL.app/Contents/Resources/app.asar" ]; then
