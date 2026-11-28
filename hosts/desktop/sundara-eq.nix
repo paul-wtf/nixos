@@ -1,6 +1,6 @@
 { pkgs, lib, ... }:
 let
-  alpha = "alsa_output.usb-D_A_D_A_Alpha-00.analog-stereo";
+  dac = "alsa_output.usb-SMSL_SMSL_USB_AUDIO-00.analog-stereo";
 
   # oratory1990 measurement, post-2020 earpads, AutoEq Harman over-ear target.
   preamp = -6.6;
@@ -60,7 +60,7 @@ let
                 playback.props = {
                     node.name     = "sundara_eq.out"
                     node.passive  = true
-                    target.object = "${alpha}"
+                    target.object = "${dac}"
                 }
             }
         }
@@ -71,7 +71,7 @@ let
     name = "sundara-eq";
     runtimeInputs = [ pkgs.pipewire pkgs.jq pkgs.coreutils pkgs.gawk pkgs.systemd ];
     text = ''
-      alpha=${alpha}
+      dac=${dac}
       unit=sundara-eq
 
       usage() {
@@ -79,12 +79,12 @@ let
         exit 2
       }
 
-      alpha_streams() {
-        pw-dump | jq -r --arg alpha "$alpha" '.[]
+      dac_streams() {
+        pw-dump | jq -r --arg dac "$dac" '.[]
           | select(.type == "PipeWire:Interface:Node")
           | .info.props
           | select(."media.class" == "Stream/Output/Audio")
-          | select((."node.target" // ."target.object") == $alpha)
+          | select((."node.target" // ."target.object") == $dac)
           | select(."node.name" != "sundara_eq.out")
           | ."object.id"'
       }
@@ -112,13 +112,13 @@ let
             [ -n "$(eq_id)" ] && break
             sleep 0.1
           done
-          for id in $(alpha_streams); do
+          for id in $(dac_streams); do
             pw-metadata -n default "$id" target.object sundara_eq >/dev/null
           done
           set_bass "''${2:-${toString bass}}"
           ;;
         off)
-          for id in $(alpha_streams); do
+          for id in $(dac_streams); do
             pw-metadata -n default -d "$id" target.object >/dev/null
           done
           systemctl --user stop "$unit" 2>/dev/null || true
